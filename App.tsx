@@ -15,6 +15,7 @@ import ProfilePage from './pages/ProfilePage';
 import OrdersPage from './pages/OrdersPage';
 import GameSchedulePage from './pages/GameSchedulePage';
 import WishlistPage from './pages/WishlistPage';
+import AddressBookPage from './pages/AddressBookPage';
 import { CartItem, User } from './shared/types';
 import { DataService } from './backend/api';
 
@@ -111,6 +112,10 @@ const App: React.FC = () => {
     setCurrentUser(null);
     setCartItems([]);
     setCurrentPage('home');
+  };
+
+  const handleUserUpdate = (updatedUser: User) => {
+    setCurrentUser(updatedUser);
   };
 
   const handleCheckoutRequest = () => {
@@ -242,12 +247,16 @@ const App: React.FC = () => {
         />
       )}
       {currentPage === 'address-book' && currentUser && (
-        <div className="flex-1 w-full max-w-[1280px] mx-auto px-4 sm:px-10 py-6 lg:py-10 font-sans text-center">
-            {/* Placeholder for Next Step */}
-            <h1 className="text-2xl font-bold mb-4 text-[#111418] dark:text-white">Sổ địa chỉ</h1>
-            <p className="text-gray-500 dark:text-gray-400 mb-6">Tính năng đang được phát triển...</p>
-            <button onClick={() => handleNavigate('profile')} className="text-primary hover:underline font-bold">Quay lại hồ sơ</button>
-        </div>
+        <AddressBookPage
+            user={currentUser}
+            onNavigateHome={() => handleNavigate('home')}
+            onNavigateProfile={() => handleNavigate('profile')}
+            onNavigateOrders={() => handleNavigate('orders')}
+            onNavigateBookings={() => handleNavigate('bookings')}
+            onNavigateWishlist={() => handleNavigate('wishlist')}
+            onUserUpdate={handleUserUpdate}
+            onLogout={handleLogout}
+        />
       )}
     </MainLayout>
   );

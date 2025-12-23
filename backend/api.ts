@@ -349,26 +349,64 @@ export const AuthService = {
     return { success: false, message: "Không tìm thấy người dùng." };
   },
 
-  // Address Management APIs
+  // Address Management APIs - ROBUST IMPLEMENTATION
   addAddress: async (userId: string, address: UserAddress): Promise<{success: boolean, user?: User, message?: string}> => {
     await new Promise(r => setTimeout(r, 800));
     const userIndex = USERS_DB.findIndex(u => u._id === userId);
     if (userIndex > -1) {
+        // Clone current addresses
+        const currentAddresses = [...(USERS_DB[userIndex].addresses || [])];
         const newAddress = { ...address, id: 'addr_' + Date.now() };
-        // If first address or set as default, handle default logic
-        if (USERS_DB[userIndex].addresses?.length === 0 || address.isDefault) {
-             USERS_DB[userIndex].addresses?.forEach(a => a.isDefault = false);
+        
+        // Handle Default Logic
+        if (currentAddresses.length === 0 || address.isDefault) {
+             // Reset others
+             currentAddresses.forEach(a => a.isDefault = false);
              newAddress.isDefault = true;
-             // Sync with legacy address field
+             // Sync legacy
              USERS_DB[userIndex].address = newAddress.street;
              USERS_DB[userIndex].city = newAddress.city;
         }
         
-        USERS_DB[userIndex].addresses = [...(USERS_DB[userIndex].addresses || []), newAddress];
+        // Update DB with new Object reference for User
+        USERS_DB[userIndex] = {
+            ...USERS_DB[userIndex],
+            addresses: [...currentAddresses, newAddress]
+        };
+        
         const { password: _, ...cleanUser } = USERS_DB[userIndex];
         return { success: true, user: cleanUser as User, message: "Thêm địa chỉ thành công!" };
     }
     return { success: false, message: "Lỗi người dùng." };
+  },
+
+  updateAddress: async (userId: string, address: UserAddress): Promise<{success: boolean, user?: User, message?: string}> => {
+    await new Promise(r => setTimeout(r, 800));
+    const userIndex = USERS_DB.findIndex(u => u._id === userId);
+    if (userIndex > -1) {
+        let addresses = [...(USERS_DB[userIndex].addresses || [])];
+        const index = addresses.findIndex(a => a.id === address.id);
+        
+        if (index > -1) {
+            // Logic if setting as default
+            if (address.isDefault) {
+                addresses = addresses.map(a => ({...a, isDefault: false}));
+                USERS_DB[userIndex].address = address.street;
+                USERS_DB[userIndex].city = address.city;
+            }
+            addresses[index] = address;
+            
+            // Update DB with new Object reference
+            USERS_DB[userIndex] = {
+                ...USERS_DB[userIndex],
+                addresses: addresses
+            };
+            
+            const { password: _, ...cleanUser } = USERS_DB[userIndex];
+            return { success: true, user: cleanUser as User, message: "Cập nhật địa chỉ thành công!" };
+        }
+    }
+    return { success: false, message: "Không tìm thấy địa chỉ." };
   },
 
   removeAddress: async (userId: string, addressId: string): Promise<{success: boolean, user?: User, message?: string}> => {
@@ -378,21 +416,27 @@ export const AuthService = {
         const addresses = USERS_DB[userIndex].addresses || [];
         const addrToRemove = addresses.find(a => a.id === addressId);
         
-        // Prevent removing if it's the only one or default (logic simplification: allow remove but warn if default?)
-        // Let's just remove it. If it was default, maybe set another one as default?
-        // For simplicity: If removing default, pick the first one remaining as new default.
+        // Filter creates new array
+        let newAddresses = addresses.filter(a => a.id !== addressId);
         
-        const newAddresses = addresses.filter(a => a.id !== addressId);
-        if (addrToRemove?.isDefault && newAddresses.length > 0) {
-            newAddresses[0].isDefault = true;
-            USERS_DB[userIndex].address = newAddresses[0].street;
-            USERS_DB[userIndex].city = newAddresses[0].city;
-        } else if (newAddresses.length === 0) {
-             USERS_DB[userIndex].address = '';
-             USERS_DB[userIndex].city = '';
+        // Handle Default Transfer if deleted
+        if (addrToRemove?.isDefault) {
+            if (newAddresses.length > 0) {
+                newAddresses[0] = { ...newAddresses[0], isDefault: true };
+                USERS_DB[userIndex].address = newAddresses[0].street;
+                USERS_DB[userIndex].city = newAddresses[0].city;
+            } else {
+                USERS_DB[userIndex].address = '';
+                USERS_DB[userIndex].city = '';
+            }
         }
 
-        USERS_DB[userIndex].addresses = newAddresses;
+        // Apply Update safely to DB
+        USERS_DB[userIndex] = {
+            ...USERS_DB[userIndex],
+            addresses: newAddresses
+        };
+        
         const { password: _, ...cleanUser } = USERS_DB[userIndex];
         return { success: true, user: cleanUser as User, message: "Đã xóa địa chỉ." };
     }
@@ -404,17 +448,29 @@ export const AuthService = {
     const userIndex = USERS_DB.findIndex(u => u._id === userId);
     if (userIndex > -1) {
         const addresses = USERS_DB[userIndex].addresses || [];
+        let newDefaultAddr: UserAddress | undefined;
+
+        // Map to new array
         const newAddresses = addresses.map(a => {
             if (a.id === addressId) {
-                // Sync legacy fields
-                USERS_DB[userIndex].address = a.street;
-                USERS_DB[userIndex].city = a.city;
+                newDefaultAddr = a;
                 return { ...a, isDefault: true };
             }
             return { ...a, isDefault: false };
         });
         
-        USERS_DB[userIndex].addresses = newAddresses;
+        // Update legacy fields
+        if (newDefaultAddr) {
+            USERS_DB[userIndex].address = newDefaultAddr.street;
+            USERS_DB[userIndex].city = newDefaultAddr.city;
+        }
+        
+        // Apply Update to DB
+        USERS_DB[userIndex] = {
+            ...USERS_DB[userIndex],
+            addresses: newAddresses
+        };
+        
         const { password: _, ...cleanUser } = USERS_DB[userIndex];
         return { success: true, user: cleanUser as User, message: "Đã đặt làm mặc định." };
     }
