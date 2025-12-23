@@ -11,7 +11,12 @@ import StoresPage from './pages/StoresPage';
 import BookingPage from './pages/BookingPage';
 import CheckoutPage from './pages/CheckoutPage';
 import BookingDetailPage from './pages/BookingDetailPage';
+import ProfilePage from './pages/ProfilePage';
+import OrdersPage from './pages/OrdersPage';
+import GameSchedulePage from './pages/GameSchedulePage';
+import WishlistPage from './pages/WishlistPage';
 import { CartItem, User } from './shared/types';
+import { DataService } from './backend/api';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState('home');
@@ -54,12 +59,7 @@ const App: React.FC = () => {
   };
 
   const handleAddToCart = (item: CartItem) => {
-    // Cho phép thêm vào giỏ hàng (có thể yêu cầu login sau ở bước checkout nếu muốn)
-    // Nhưng theo logic hiện tại, giữ nguyên yêu cầu login nếu cần thiết
-    
     setCartItems(prev => {
-      // Logic riêng cho BOOKING/SERVICE: Nếu cùng Station, cùng giờ thì update, khác giờ thì thêm mới?
-      // Để đơn giản: Nếu type là SERVICE, luôn thêm mới để tránh gộp giờ chơi của các ngày khác nhau
       if (item.type === 'SERVICE') {
          return [...prev, item];
       }
@@ -82,8 +82,6 @@ const App: React.FC = () => {
   const handleUpdateQuantity = (productId: string, selectedColor: string | undefined, newQuantity: number) => {
     setCartItems(prev => prev.map(item => {
       if (item.productId === productId && item.selectedColor === selectedColor) {
-        // Nếu là Service (Booking), quantity chính là số giờ, ko nên update ở cart đơn thuần mà nên có logic riêng
-        // Ở đây tạm cho update số giờ
         return { ...item, quantity: Math.min(Math.max(1, newQuantity), item.maxStock) };
       }
       return item;
@@ -91,13 +89,8 @@ const App: React.FC = () => {
   };
 
   const handleRemoveFromCart = (productId: string, selectedColor: string | undefined) => {
-    // Với Booking, productId là stationId. Cần cẩn thận nếu xóa nhầm nhiều booking cùng station.
-    // Tạm thời filter theo ID (với Booking thì nên dùng thêm timestamp ID unique cho cart item, nhưng ở đây dùng productId)
-    // Để fix lỗi xóa nhầm booking: Filter check thêm type
     setCartItems(prev => prev.filter(item => {
         if (item.type === 'SERVICE') {
-            // Nếu là service, so sánh chính xác reference hoặc thêm field id unique. 
-            // Ở mock này, ta xóa item nếu productId trùng (chấp nhận xóa hết booking cùng máy)
             return item.productId !== productId; 
         }
         return !(item.productId === productId && item.selectedColor === selectedColor);
@@ -129,6 +122,22 @@ const App: React.FC = () => {
     }
   };
 
+  // Wishlist Handler
+  const handleToggleWishlist = async (productId: string) => {
+    if (!currentUser) {
+        alert("Vui lòng đăng nhập để lưu sản phẩm yêu thích.");
+        handleNavigate('login');
+        return;
+    }
+    
+    // Optimistic UI Update locally first (optional but good for UX)
+    // Here we rely on API response to sync state properly
+    const res = await DataService.toggleWishlist(currentUser._id, productId);
+    if (res.success && res.wishlist) {
+        setCurrentUser({ ...currentUser, wishlist: res.wishlist });
+    }
+  };
+
   // Auth Pages
   if (currentPage === 'login') {
     return <LoginPage onLoginSuccess={handleLoginSuccess} onNavigateHome={() => handleNavigate('home')} onNavigateForgotPassword={() => handleNavigate('forgot-password')} />;
@@ -140,9 +149,9 @@ const App: React.FC = () => {
 
   return (
     <MainLayout onNavigate={handleNavigate} onSearch={handleSearch} currentPage={currentPage} cartCount={cartCount} user={currentUser} onLogout={handleLogout}>
-      {currentPage === 'home' && <HomePage onNavigateProduct={handleNavigateProduct} onNavigateProducts={() => handleNavigate('products')} />}
-      {currentPage === 'products' && <ProductsPage onNavigateHome={() => handleNavigate('home')} onNavigateProduct={handleNavigateProduct} searchQuery={searchQuery} onClearSearch={() => setSearchQuery('')} />}
-      {currentPage === 'product-detail' && currentProductId && <ProductDetailPage productId={currentProductId} onNavigateHome={() => handleNavigate('home')} onNavigateProducts={() => handleNavigate('products')} onNavigateProduct={handleNavigateProduct} onNavigateBooking={handleNavigateBooking} onAddToCart={handleAddToCart} />}
+      {currentPage === 'home' && <HomePage onNavigateProduct={handleNavigateProduct} onNavigateProducts={() => handleNavigate('products')} user={currentUser} onToggleWishlist={handleToggleWishlist} />}
+      {currentPage === 'products' && <ProductsPage onNavigateHome={() => handleNavigate('home')} onNavigateProduct={handleNavigateProduct} searchQuery={searchQuery} onClearSearch={() => setSearchQuery('')} user={currentUser} onToggleWishlist={handleToggleWishlist} />}
+      {currentPage === 'product-detail' && currentProductId && <ProductDetailPage productId={currentProductId} onNavigateHome={() => handleNavigate('home')} onNavigateProducts={() => handleNavigate('products')} onNavigateProduct={handleNavigateProduct} onNavigateBooking={handleNavigateBooking} onAddToCart={handleAddToCart} user={currentUser} onToggleWishlist={handleToggleWishlist} />}
       {currentPage === 'cart' && (
         <CartPage 
           items={cartItems} 
@@ -156,7 +165,17 @@ const App: React.FC = () => {
       )}
       {currentPage === 'contact' && <ContactPage onNavigateStores={() => handleNavigate('stores')} onNavigateBooking={handleNavigateBooking} />}
       {currentPage === 'stores' && <StoresPage onNavigateHome={() => handleNavigate('home')} onNavigateBooking={handleNavigateBooking} onNavigateContact={() => handleNavigate('contact')} />}
-      {currentPage === 'checkout' && <CheckoutPage items={cartItems} user={currentUser} onNavigateHome={() => handleNavigate('home')} onNavigateCart={() => handleNavigate('cart')} onOrderSuccess={handleCheckoutSuccess} />}
+      {currentPage === 'checkout' && (
+        <CheckoutPage 
+            items={cartItems} 
+            user={currentUser} 
+            onNavigateHome={() => handleNavigate('home')} 
+            onNavigateCart={() => handleNavigate('cart')} 
+            onOrderSuccess={handleCheckoutSuccess} 
+            onNavigateOrders={() => handleNavigate('orders')}
+            onNavigateBookings={() => handleNavigate('bookings')}
+        />
+      )}
       {currentPage === 'booking' && (
         <BookingPage 
             user={currentUser} 
@@ -167,6 +186,69 @@ const App: React.FC = () => {
         />
       )}
       {currentPage === 'booking-detail' && currentBookingId && <BookingDetailPage bookingId={currentBookingId} onNavigateHome={() => handleNavigate('home')} />}
+      {currentPage === 'profile' && currentUser && (
+        <ProfilePage 
+            user={currentUser} 
+            onNavigateHome={() => handleNavigate('home')}
+            onNavigateOrders={() => handleNavigate('orders')}
+            onNavigateBookings={() => handleNavigate('bookings')}
+            onNavigateWishlist={() => handleNavigate('wishlist')}
+            onNavigateAddressBook={() => handleNavigate('address-book')}
+            onNavigateBookingDetail={handleNavigateBookingDetail}
+            onLogout={handleLogout}
+        />
+      )}
+      {currentPage === 'orders' && currentUser && (
+        <OrdersPage 
+            user={currentUser} 
+            onNavigateHome={() => handleNavigate('home')}
+            onNavigateProfile={() => handleNavigate('profile')}
+            onNavigateBookings={() => handleNavigate('bookings')}
+            onNavigateWishlist={() => handleNavigate('wishlist')}
+            onNavigateAddressBook={() => handleNavigate('address-book')}
+            onNavigateContact={() => handleNavigate('contact')}
+            onNavigateOrderDetail={(id) => alert("Trang chi tiết đơn hàng " + id + " sẽ được phát triển sau.")} 
+            onLogout={handleLogout}
+        />
+      )}
+      {currentPage === 'bookings' && currentUser && (
+        <GameSchedulePage
+            user={currentUser}
+            onNavigateHome={() => handleNavigate('home')}
+            onNavigateProfile={() => handleNavigate('profile')}
+            onNavigateOrders={() => handleNavigate('orders')}
+            onNavigateWishlist={() => handleNavigate('wishlist')}
+            onNavigateAddressBook={() => handleNavigate('address-book')}
+            onNavigateBooking={handleNavigateBooking}
+            onNavigateBookingDetail={handleNavigateBookingDetail}
+            onNavigateProduct={handleNavigateProduct}
+            onNavigateProducts={() => handleNavigate('products')}
+            onLogout={handleLogout}
+        />
+      )}
+      {currentPage === 'wishlist' && currentUser && (
+        <WishlistPage
+            user={currentUser}
+            onNavigateHome={() => handleNavigate('home')}
+            onNavigateProfile={() => handleNavigate('profile')}
+            onNavigateOrders={() => handleNavigate('orders')}
+            onNavigateBookings={() => handleNavigate('bookings')}
+            onNavigateAddressBook={() => handleNavigate('address-book')}
+            onNavigateProduct={handleNavigateProduct}
+            onNavigateProducts={() => handleNavigate('products')}
+            onAddToCart={handleAddToCart}
+            onLogout={handleLogout}
+            onRemoveFromWishlist={handleToggleWishlist}
+        />
+      )}
+      {currentPage === 'address-book' && currentUser && (
+        <div className="flex-1 w-full max-w-[1280px] mx-auto px-4 sm:px-10 py-6 lg:py-10 font-sans text-center">
+            {/* Placeholder for Next Step */}
+            <h1 className="text-2xl font-bold mb-4 text-[#111418] dark:text-white">Sổ địa chỉ</h1>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">Tính năng đang được phát triển...</p>
+            <button onClick={() => handleNavigate('profile')} className="text-primary hover:underline font-bold">Quay lại hồ sơ</button>
+        </div>
+      )}
     </MainLayout>
   );
 };

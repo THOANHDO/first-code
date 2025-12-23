@@ -1,9 +1,26 @@
 import { PRODUCTS_DB, CATEGORIES_DB, ARTICLES_DB, BANNERS_DB, FEATURES_DB, GAME_STATION_IMAGES_DB, BRANDS_DB, USERS_DB, OTP_STORE, ORDERS_DB, BOOKINGS_DB, CONTACT_MESSAGES_DB, COUPONS_DB, STORES_DB, STATIONS_DB, GAMES_LIBRARY_DB, FOOD_DRINK_DB } from './database';
-import { Product, Category, NewsArticle, Banner, Feature, GameStationImage, OrderInput, NewsletterInput, Brand, ProductFilterParams, PaginatedResult, BookingInput, User, AuthResponse, Order, Booking, ContactInput, Coupon, StoreLocation, Station, GameLibrary, FoodDrink, SessionCartItem } from '../shared/types';
+import { Product, Category, NewsArticle, Banner, Feature, GameStationImage, OrderInput, NewsletterInput, Brand, ProductFilterParams, PaginatedResult, BookingInput, User, AuthResponse, Order, Booking, ContactInput, Coupon, StoreLocation, Station, GameLibrary, FoodDrink, SessionCartItem, UserAddress } from '../shared/types';
 
 const timeToMinutes = (time: string) => {
     const [h, m] = time.split(':').map(Number);
     return h * 60 + m;
+};
+
+// Helper function to check overlap
+const checkCollision = (date: string, stationId: string, startTime: string, duration: number): boolean => {
+    const newStart = timeToMinutes(startTime);
+    const newEnd = newStart + (duration * 60);
+
+    return BOOKINGS_DB.some(b => {
+        // Chỉ check các đơn cùng ngày, cùng máy và chưa bị hủy
+        if (b.date !== date || b.stationId !== stationId || b.status === 'CANCELLED') return false;
+        
+        const existStart = timeToMinutes(b.time);
+        const existEnd = timeToMinutes(b.endTime);
+
+        // Logic va chạm: (StartA < EndB) && (EndA > StartB)
+        return (newStart < existEnd && newEnd > existStart);
+    });
 };
 
 export const DataService = {
@@ -37,6 +54,16 @@ export const DataService = {
   getBookingById: async (id: string): Promise<Booking | undefined> => {
     await new Promise(r => setTimeout(r, 300));
     return BOOKINGS_DB.find(b => b._id === id);
+  },
+
+  getUserOrders: async (userId: string): Promise<Order[]> => {
+    await new Promise(r => setTimeout(r, 400));
+    return ORDERS_DB.filter(o => o.userId === userId).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  },
+
+  getUserBookings: async (userId: string): Promise<Booking[]> => {
+    await new Promise(r => setTimeout(r, 400));
+    return BOOKINGS_DB.filter(b => b.userId === userId).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   },
 
   getProducts: async (params: ProductFilterParams = {}): Promise<PaginatedResult<Product>> => {
@@ -87,6 +114,26 @@ export const DataService = {
   createOrder: async (input: OrderInput): Promise<{success: boolean, message: string, orderId: string}> => {
     await new Promise(resolve => setTimeout(resolve, 1500));
     
+    // Server-side Validation: Check Collision for Service Items
+    for (const item of input.items) {
+        if (item.type === 'SERVICE' && item.bookingDate && item.bookingTime && item.bookingDuration) {
+            const hasConflict = checkCollision(
+                item.bookingDate,
+                item.productId, // stationId maps to productId in CartItem
+                item.bookingTime,
+                item.bookingDuration
+            );
+
+            if (hasConflict) {
+                return { 
+                    success: false, 
+                    message: `Rất tiếc, máy ${item.name} đã có người đặt trong khung giờ ${item.bookingTime} ngày ${item.bookingDate}. Vui lòng chọn giờ khác.`, 
+                    orderId: '' 
+                };
+            }
+        }
+    }
+
     // Create the Order
     const newOrder: Order = {
         _id: `ORD-${Date.now().toString().slice(-6)}`,
@@ -108,7 +155,7 @@ export const DataService = {
             const endM = endMins % 60;
             const endTimeStr = `${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')}`;
 
-            // Find Station Info
+            // Find Station Info to get storeId and name
             const station = STATIONS_DB.find(s => s._id === item.productId);
 
             const newBooking: Booking = {
@@ -121,8 +168,8 @@ export const DataService = {
                 time: item.bookingTime,
                 duration: item.bookingDuration,
                 stationId: item.productId,
-                storeId: input.pickupStoreId || 'hcm-q1', // Default to Q1 if not specified (or should strictly match selectedStore)
-                gameIds: [], 
+                storeId: station?.storeId || input.pickupStoreId || 'hcm-q1', // Use Station's storeId if available
+                gameIds: item.gameIds || [], // FIXED: Use gameIds from CartItem
                 createdAt: new Date().toISOString(),
                 status: 'CONFIRMED',
                 paymentStatus: 'PAID', // Assumed paid via Checkout
@@ -131,7 +178,6 @@ export const DataService = {
                 endTime: endTimeStr
             };
             
-            // Validate overlapping (Simplified: just log if conflict, but create anyway for this mock flow)
             BOOKINGS_DB.push(newBooking);
         }
     });
@@ -142,23 +188,17 @@ export const DataService = {
   submitBooking: async (input: BookingInput): Promise<{success: boolean, message: string, bookingId?: string}> => {
     await new Promise(resolve => setTimeout(resolve, 1000));
     
+    // Check overlapping directly
+    if (checkCollision(input.date, input.stationId, input.time, input.duration)) {
+        return { success: false, message: "Khung giờ này đã có người đặt. Vui lòng chọn giờ khác hoặc máy khác." };
+    }
+
     const [h, m] = input.time.split(':').map(Number);
     const startMins = h * 60 + m;
     const endMins = startMins + (input.duration * 60);
     const endH = Math.floor(endMins / 60);
     const endM = endMins % 60;
     const endTimeStr = `${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')}`;
-
-    const isOverlapping = BOOKINGS_DB.some(b => {
-        if (b.date !== input.date || b.stationId !== input.stationId || b.status === 'CANCELLED') return false;
-        const bStart = timeToMinutes(b.time);
-        const bEnd = timeToMinutes(b.endTime);
-        return (startMins < bEnd && endMins > bStart);
-    });
-
-    if (isOverlapping) {
-        return { success: false, message: "Khung giờ này đã có người đặt. Vui lòng chọn giờ khác hoặc máy khác." };
-    }
 
     const station = STATIONS_DB.find(s => s._id === input.stationId);
     const newBooking: Booking = {
@@ -182,6 +222,13 @@ export const DataService = {
     if (!booking) return { success: false, message: "Không tìm thấy phiên chơi." };
 
     if (additionalHours > 2) return { success: false, message: "Chỉ được gia hạn tối đa 2 giờ một lần." };
+
+    // Check collision for the extended period
+    // Start time of extension = Current End Time of booking
+    const hasConflict = checkCollision(booking.date, booking.stationId, booking.endTime, additionalHours);
+    if (hasConflict) {
+        return { success: false, message: "Không thể gia hạn do đã có khách đặt lịch kế tiếp." };
+    }
 
     const [h, m] = booking.endTime.split(':').map(Number);
     const newEndMins = h * 60 + m + (additionalHours * 60);
@@ -218,6 +265,30 @@ export const DataService = {
     await new Promise(r => setTimeout(r, 1000));
     CONTACT_MESSAGES_DB.push(input);
     return { success: true, message: "Đã gửi tin nhắn!" };
+  },
+
+  toggleWishlist: async (userId: string, productId: string): Promise<{success: boolean, wishlist?: string[], message?: string}> => {
+    await new Promise(r => setTimeout(r, 500));
+    const userIndex = USERS_DB.findIndex(u => u._id === userId);
+    if (userIndex === -1) return { success: false, message: "User not found" };
+    
+    let wishlist = USERS_DB[userIndex].wishlist || [];
+    if (wishlist.includes(productId)) {
+        wishlist = wishlist.filter(id => id !== productId);
+    } else {
+        wishlist = [...wishlist, productId];
+    }
+    USERS_DB[userIndex].wishlist = wishlist;
+    return { success: true, wishlist };
+  },
+
+  getWishlistProducts: async (userId: string): Promise<Product[]> => {
+    await new Promise(r => setTimeout(r, 600));
+    const user = USERS_DB.find(u => u._id === userId);
+    if (!user || !user.wishlist || user.wishlist.length === 0) return [];
+    
+    // In a real DB, this would be a query with $in
+    return PRODUCTS_DB.filter(p => user.wishlist?.includes(p._id));
   }
 };
 
@@ -234,11 +305,22 @@ export const AuthService = {
   },
   register: async (email: string, name: string, password?: string): Promise<AuthResponse> => {
     await new Promise(r => setTimeout(r, 1000));
-    const newUser: User = { _id: 'u' + Date.now(), email, name, role: 'USER', password };
+    const newUser: User = { _id: 'u' + Date.now(), email, name, role: 'USER', password, wishlist: [], addresses: [] };
     USERS_DB.push(newUser);
     return { success: true, user: newUser };
   },
   logout: async (): Promise<void> => { await new Promise(r => setTimeout(r, 500)); },
+
+  updateProfile: async (userId: string, data: Partial<User>): Promise<{success: boolean, user?: User, message?: string}> => {
+    await new Promise(r => setTimeout(r, 1000));
+    const userIndex = USERS_DB.findIndex(u => u._id === userId);
+    if (userIndex > -1) {
+        USERS_DB[userIndex] = { ...USERS_DB[userIndex], ...data };
+        const { password: _, ...cleanUser } = USERS_DB[userIndex];
+        return { success: true, user: cleanUser as User, message: "Cập nhật thành công!" };
+    }
+    return { success: false, message: "Người dùng không tồn tại." };
+  },
 
   forgotPassword: async (email: string): Promise<{success: boolean, message: string}> => {
     await new Promise(r => setTimeout(r, 1000));
@@ -265,5 +347,77 @@ export const AuthService = {
       return { success: true, message: "Mật khẩu đã được thay đổi thành công." };
     }
     return { success: false, message: "Không tìm thấy người dùng." };
+  },
+
+  // Address Management APIs
+  addAddress: async (userId: string, address: UserAddress): Promise<{success: boolean, user?: User, message?: string}> => {
+    await new Promise(r => setTimeout(r, 800));
+    const userIndex = USERS_DB.findIndex(u => u._id === userId);
+    if (userIndex > -1) {
+        const newAddress = { ...address, id: 'addr_' + Date.now() };
+        // If first address or set as default, handle default logic
+        if (USERS_DB[userIndex].addresses?.length === 0 || address.isDefault) {
+             USERS_DB[userIndex].addresses?.forEach(a => a.isDefault = false);
+             newAddress.isDefault = true;
+             // Sync with legacy address field
+             USERS_DB[userIndex].address = newAddress.street;
+             USERS_DB[userIndex].city = newAddress.city;
+        }
+        
+        USERS_DB[userIndex].addresses = [...(USERS_DB[userIndex].addresses || []), newAddress];
+        const { password: _, ...cleanUser } = USERS_DB[userIndex];
+        return { success: true, user: cleanUser as User, message: "Thêm địa chỉ thành công!" };
+    }
+    return { success: false, message: "Lỗi người dùng." };
+  },
+
+  removeAddress: async (userId: string, addressId: string): Promise<{success: boolean, user?: User, message?: string}> => {
+    await new Promise(r => setTimeout(r, 600));
+    const userIndex = USERS_DB.findIndex(u => u._id === userId);
+    if (userIndex > -1) {
+        const addresses = USERS_DB[userIndex].addresses || [];
+        const addrToRemove = addresses.find(a => a.id === addressId);
+        
+        // Prevent removing if it's the only one or default (logic simplification: allow remove but warn if default?)
+        // Let's just remove it. If it was default, maybe set another one as default?
+        // For simplicity: If removing default, pick the first one remaining as new default.
+        
+        const newAddresses = addresses.filter(a => a.id !== addressId);
+        if (addrToRemove?.isDefault && newAddresses.length > 0) {
+            newAddresses[0].isDefault = true;
+            USERS_DB[userIndex].address = newAddresses[0].street;
+            USERS_DB[userIndex].city = newAddresses[0].city;
+        } else if (newAddresses.length === 0) {
+             USERS_DB[userIndex].address = '';
+             USERS_DB[userIndex].city = '';
+        }
+
+        USERS_DB[userIndex].addresses = newAddresses;
+        const { password: _, ...cleanUser } = USERS_DB[userIndex];
+        return { success: true, user: cleanUser as User, message: "Đã xóa địa chỉ." };
+    }
+    return { success: false, message: "Lỗi người dùng." };
+  },
+
+  setDefaultAddress: async (userId: string, addressId: string): Promise<{success: boolean, user?: User, message?: string}> => {
+    await new Promise(r => setTimeout(r, 500));
+    const userIndex = USERS_DB.findIndex(u => u._id === userId);
+    if (userIndex > -1) {
+        const addresses = USERS_DB[userIndex].addresses || [];
+        const newAddresses = addresses.map(a => {
+            if (a.id === addressId) {
+                // Sync legacy fields
+                USERS_DB[userIndex].address = a.street;
+                USERS_DB[userIndex].city = a.city;
+                return { ...a, isDefault: true };
+            }
+            return { ...a, isDefault: false };
+        });
+        
+        USERS_DB[userIndex].addresses = newAddresses;
+        const { password: _, ...cleanUser } = USERS_DB[userIndex];
+        return { success: true, user: cleanUser as User, message: "Đã đặt làm mặc định." };
+    }
+    return { success: false, message: "Lỗi người dùng." };
   }
 };

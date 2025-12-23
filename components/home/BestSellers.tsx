@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { DataService } from '../../backend/api';
-import { Product, FilterType, ProductFilterParams } from '../../shared/types';
+import { Product, FilterType, ProductFilterParams, User } from '../../shared/types';
 
 interface BestSellersProps {
   onNavigateProduct?: (id: string) => void;
   onNavigateProducts: () => void;
+  user: User | null;
+  onToggleWishlist: (productId: string) => void;
 }
 
-export default function BestSellers({ onNavigateProduct, onNavigateProducts }: BestSellersProps) {
+export default function BestSellers({ onNavigateProduct, onNavigateProducts, user, onToggleWishlist }: BestSellersProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [filter, setFilter] = useState<FilterType>('ALL');
   const [loading, setLoading] = useState(true);
@@ -29,6 +31,11 @@ export default function BestSellers({ onNavigateProduct, onNavigateProducts }: B
       setLoading(false);
     });
   }, [filter]);
+
+  const handleWishlistClick = (e: React.MouseEvent, productId: string) => {
+      e.stopPropagation();
+      onToggleWishlist(productId);
+  };
 
   return (
     <section className="w-full py-12 lg:py-16 bg-white">
@@ -68,7 +75,9 @@ export default function BestSellers({ onNavigateProduct, onNavigateProducts }: B
            </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {products.map(product => (
+            {products.map(product => {
+              const isWishlisted = user?.wishlist?.includes(product._id);
+              return (
               <div 
                 key={product._id} 
                 onClick={() => onNavigateProduct && onNavigateProduct(product._id)}
@@ -87,8 +96,11 @@ export default function BestSellers({ onNavigateProduct, onNavigateProducts }: B
                      </div>
                   )}
                   
-                  <button className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 duration-300">
-                    <span className="material-symbols-outlined text-[18px]">favorite</span>
+                  <button 
+                    onClick={(e) => handleWishlistClick(e, product._id)}
+                    className={`absolute top-3 right-3 w-8 h-8 rounded-full shadow-md flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 duration-300 ${isWishlisted ? 'bg-red-50 text-red-500' : 'bg-white text-gray-400 hover:text-red-500'}`}
+                  >
+                    <span className={`material-symbols-outlined text-[18px] ${isWishlisted ? 'filled' : ''}`} style={isWishlisted ? {fontVariationSettings: "'FILL' 1"} : {}}>favorite</span>
                   </button>
                 </div>
                 
@@ -109,7 +121,7 @@ export default function BestSellers({ onNavigateProduct, onNavigateProducts }: B
                   </div>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
 

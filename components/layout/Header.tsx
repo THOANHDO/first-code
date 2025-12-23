@@ -143,6 +143,18 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onSearch, currentPage, cart
                         <p className="text-xs text-gray-500">Đăng nhập là</p>
                         <p className="text-sm font-bold text-slate-800 truncate">{user.email}</p>
                       </div>
+                      <button onClick={() => onNavigate('profile')} className="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-gray-50 transition-colors flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[18px]">person</span>
+                        Thông tin tài khoản
+                      </button>
+                      <button onClick={() => onNavigate('orders')} className="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-gray-50 transition-colors flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[18px]">inventory_2</span>
+                        Quản lý đơn hàng
+                      </button>
+                      <button onClick={() => onNavigate('wishlist')} className="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-gray-50 transition-colors flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[18px]">favorite</span>
+                        Sản phẩm yêu thích
+                      </button>
                       <button onClick={handleLogoutClick} className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2">
                         <span className="material-symbols-outlined text-[18px]">logout</span>
                         Đăng xuất

@@ -9,9 +9,11 @@ interface CheckoutPageProps {
   onNavigateHome: () => void;
   onNavigateCart: () => void;
   onOrderSuccess: () => void;
+  onNavigateOrders: () => void;
+  onNavigateBookings: () => void;
 }
 
-const CheckoutPage: React.FC<CheckoutPageProps> = ({ items, user, onNavigateHome, onNavigateCart, onOrderSuccess }) => {
+const CheckoutPage: React.FC<CheckoutPageProps> = ({ items, user, onNavigateHome, onNavigateCart, onOrderSuccess, onNavigateOrders, onNavigateBookings }) => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState('');
@@ -23,6 +25,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ items, user, onNavigateHome
   // Determine Order Type
   const hasBooking = items.some(i => i.type === 'SERVICE');
   const hasProduct = items.some(i => i.type !== 'SERVICE');
+  // Logic: "Booking Only" means strictly no products. Mixed orders go to Order History generally, but user wants strict separation.
+  // The Navigation Button logic below handles the redirect.
   const isBookingOnly = hasBooking && !hasProduct;
   const isMixed = hasBooking && hasProduct;
 
@@ -130,8 +134,11 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ items, user, onNavigateHome
             <button onClick={onNavigateHome} className="flex-1 bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700 text-slate-700 dark:text-white font-bold py-3.5 px-6 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
                 Về trang chủ
             </button>
-            <button className="flex-1 bg-primary hover:bg-blue-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-primary/30 transition-all">
-                Theo dõi đơn
+            <button 
+                onClick={isBookingOnly ? onNavigateBookings : onNavigateOrders}
+                className="flex-1 bg-primary hover:bg-blue-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-primary/30 transition-all"
+            >
+                {isBookingOnly ? "Xem lịch đặt" : "Theo dõi đơn"}
             </button>
         </div>
       </div>

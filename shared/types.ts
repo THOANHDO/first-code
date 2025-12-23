@@ -47,6 +47,7 @@ export interface CartItem {
   bookingDate?: string;
   bookingTime?: string;
   bookingDuration?: number;
+  gameIds?: string[]; // Added to store selected games
 }
 
 export interface Category {
@@ -227,6 +228,16 @@ export interface Booking extends BookingInput {
   fnbOrders?: SessionCartItem[];
 }
 
+export interface UserAddress {
+  id: string;
+  name: string;
+  phone: string;
+  street: string;
+  city: string;
+  type: 'HOME' | 'OFFICE';
+  isDefault: boolean;
+}
+
 export interface User {
   _id: string;
   name: string;
@@ -235,8 +246,15 @@ export interface User {
   role: 'USER' | 'ADMIN';
   password?: string; 
   phone?: string;
-  address?: string;
-  city?: string;
+  address?: string; // Legacy/Display address
+  city?: string;    // Legacy/Display city
+  // New profile fields
+  gamerTag?: string;
+  points?: number;
+  birthDate?: string;
+  gender?: 'Nam' | 'Nữ' | 'Khác';
+  wishlist?: string[]; // Array of Product IDs
+  addresses?: UserAddress[]; // New Address Book
 }
 
 export interface AuthResponse {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { DataService } from '../backend/api';
-import { Product, CartItem } from '../shared/types';
+import { Product, CartItem, User } from '../shared/types';
 
 interface ProductDetailPageProps {
   productId: string;
@@ -8,7 +8,9 @@ interface ProductDetailPageProps {
   onNavigateProducts?: () => void;
   onNavigateProduct: (id: string) => void;
   onNavigateBooking?: () => void;
-  onAddToCart?: (item: CartItem) => void; // Update prop signature
+  onAddToCart?: (item: CartItem) => void;
+  user: User | null;
+  onToggleWishlist: (productId: string) => void;
 }
 
 interface FlyingItem {
@@ -26,7 +28,9 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   onNavigateProducts, 
   onNavigateProduct,
   onNavigateBooking,
-  onAddToCart 
+  onAddToCart,
+  user,
+  onToggleWishlist
 }) => {
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
@@ -124,6 +128,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   };
 
   const currentStock = product?.stock || 0;
+  const isWishlisted = product && user?.wishlist?.includes(product._id);
 
   if (loading) {
     return (
@@ -215,8 +220,11 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                 className="w-full h-full bg-center bg-contain bg-no-repeat transition-all duration-300" 
                 style={{ backgroundImage: `url('${activeImage}')` }}
               ></div>
-              <button className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur rounded-full shadow-sm hover:scale-110 transition-transform text-gray-700">
-                <span className="material-symbols-outlined fill-current">favorite</span>
+              <button 
+                onClick={() => onToggleWishlist(product._id)}
+                className={`absolute top-4 right-4 p-2 rounded-full shadow-sm hover:scale-110 transition-transform ${isWishlisted ? 'bg-red-50 text-red-500' : 'bg-white/90 backdrop-blur text-gray-700 hover:text-red-500'}`}
+              >
+                <span className={`material-symbols-outlined ${isWishlisted ? 'filled' : ''}`} style={isWishlisted ? {fontVariationSettings: "'FILL' 1"} : {}}>favorite</span>
               </button>
               {galleryImages.length > 0 && (
                  <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur text-white text-xs px-3 py-1 rounded-full flex items-center gap-1">

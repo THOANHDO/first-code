@@ -1,18 +1,20 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { DataService } from '../backend/api';
-import { Product, GameStationImage, Category, Brand, ProductFilterParams } from '../shared/types';
+import { Product, GameStationImage, Category, Brand, ProductFilterParams, User } from '../shared/types';
 
 interface ProductsPageProps {
   onNavigateHome: () => void;
   onNavigateProduct?: (id: string) => void;
   searchQuery?: string;
   onClearSearch?: () => void;
+  user: User | null;
+  onToggleWishlist: (productId: string) => void;
 }
 
 const ITEMS_PER_PAGE = 10;
 const MAX_PRICE_RANGE = 20000000;
 
-const ProductsPage: React.FC<ProductsPageProps> = ({ onNavigateHome, onNavigateProduct, searchQuery, onClearSearch }) => {
+const ProductsPage: React.FC<ProductsPageProps> = ({ onNavigateHome, onNavigateProduct, searchQuery, onClearSearch, user, onToggleWishlist }) => {
   // Data State
   const [products, setProducts] = useState<Product[]>([]);
   const [promoImages, setPromoImages] = useState<GameStationImage[]>([]);
@@ -102,6 +104,11 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ onNavigateHome, onNavigateP
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
+  };
+
+  const handleWishlistClick = (e: React.MouseEvent, productId: string) => {
+      e.stopPropagation();
+      onToggleWishlist(productId);
   };
 
   // Banner Slideshow Logic
@@ -348,7 +355,9 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ onNavigateHome, onNavigateP
                 </div>
               ) : products.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-                  {products.map((product) => (
+                  {products.map((product) => {
+                    const isWishlisted = user?.wishlist?.includes(product._id);
+                    return (
                     <article 
                       key={product._id} 
                       onClick={() => onNavigateProduct && onNavigateProduct(product._id)}
@@ -368,8 +377,11 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ onNavigateHome, onNavigateP
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                           src={product.image} 
                         />
-                        <button className="absolute bottom-3 right-3 bg-white dark:bg-gray-800 p-2.5 rounded-full shadow-lg text-slate-700 dark:text-white hover:text-primary hover:bg-gray-50 transition-all translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-300">
-                          <span className="material-symbols-outlined text-[20px]">add_shopping_cart</span>
+                        <button 
+                            onClick={(e) => handleWishlistClick(e, product._id)}
+                            className={`absolute bottom-3 right-3 p-2.5 rounded-full shadow-lg transition-all translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-300 ${isWishlisted ? 'bg-red-50 text-red-500' : 'bg-white dark:bg-gray-800 text-slate-700 dark:text-white hover:text-red-500'}`}
+                        >
+                          <span className={`material-symbols-outlined text-[20px] ${isWishlisted ? 'filled' : ''}`} style={isWishlisted ? {fontVariationSettings: "'FILL' 1"} : {}}>favorite</span>
                         </button>
                       </div>
                       <div className="p-5 flex flex-col flex-1">
@@ -391,7 +403,7 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ onNavigateHome, onNavigateP
                         </div>
                       </div>
                     </article>
-                  ))}
+                  )})}
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-20 text-center">
