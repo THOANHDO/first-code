@@ -1,3 +1,4 @@
+
 // Data Models mirroring a MongoDB Schema
 
 export interface Review {
@@ -32,7 +33,6 @@ export interface Product {
   reviews?: Review[];
 }
 
-// UPGRADE: Hỗ trợ cả sản phẩm và dịch vụ (đặt lịch) trong giỏ hàng
 export type CartItemType = 'PRODUCT' | 'SERVICE';
 
 export interface CartItem {
@@ -43,11 +43,10 @@ export interface CartItem {
   quantity: number;
   selectedColor?: string;
   maxStock: number;
-  type?: CartItemType; // Mặc định là 'PRODUCT'
-  // Fields cho Service Booking
+  type?: CartItemType;
   bookingDate?: string;
   bookingTime?: string;
-  bookingDuration?: number; // Số giờ
+  bookingDuration?: number;
 }
 
 export interface Category {
@@ -122,37 +121,34 @@ export interface PaginatedResult<T> {
 }
 
 export type FilterType = 'ALL' | 'PLAYSTATION' | 'NINTENDO' | 'ACCESSORIES' | 'TCG' | 'FIGURE';
+export type PaymentMethod = 'COD' | 'BANK_TRANSFER' | 'MOMO' | 'VNPAY' | 'ZALOPAY';
+export type DeliveryMethod = 'SHIPPING' | 'STORE_PICKUP';
 
-// NEW: Định nghĩa phương thức thanh toán
-export type PaymentMethod = 'COD' | 'BANK_TRANSFER' | 'MOMO' | 'ZALOPAY';
-
-// NEW: Coupon Interface
 export interface Coupon {
   code: string;
-  discount: number; // Value e.g., 10 (percent) or 50000 (fixed)
+  discount: number;
   type: 'PERCENT' | 'FIXED';
   description: string;
   minOrderValue?: number;
 }
 
-// Input để tạo đơn hàng
 export interface OrderInput {
-  userId?: string; // Optional if guest
+  userId?: string;
   items: CartItem[];
   totalAmount: number;
   customerName: string;
   phone: string;
   email: string;       
-  address: string;
+  address: string; // Delivery address or Store Address
   city: string;        
   paymentMethod: PaymentMethod; 
+  deliveryMethod: DeliveryMethod;
+  pickupStoreId?: string; // If STORE_PICKUP
   note?: string;
-  // New fields for discounts
   couponCode?: string;
   discountAmount?: number;
 }
 
-// Order đã lưu trong DB
 export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'SHIPPING' | 'COMPLETED' | 'CANCELLED';
 
 export interface Order extends OrderInput {
@@ -162,14 +158,45 @@ export interface Order extends OrderInput {
   paymentStatus: 'PAID' | 'UNPAID';
 }
 
-// NEW: Định nghĩa Dịch vụ cho trang Booking
-export interface Service {
+// Station Interface
+export type StationStatus = 'AVAILABLE' | 'OCCUPIED' | 'MAINTENANCE';
+export interface Station {
   _id: string;
   name: string;
+  type: 'PS5' | 'SWITCH' | 'PC';
   description: string;
   pricePerHour: number;
   image: string;
-  amenities: string[];
+  status: StationStatus;
+  zone: string; 
+}
+
+// Game Interface for library
+export interface GameLibrary {
+  _id: string;
+  title: string;
+  image: string;
+  isHot?: boolean;
+  platform?: 'PS5' | 'SWITCH' | 'PC';
+  category?: string;
+  players?: string;
+}
+
+// F&B Interface
+export type FoodDrinkCategory = 'DRINK' | 'SNACK' | 'NOODLE' | 'COFFEE' | 'TEA';
+export interface FoodDrink {
+  _id: string;
+  name: string;
+  price: number;
+  category: FoodDrinkCategory;
+  image: string;
+  description: string;
+  discount?: number;
+}
+
+export interface SessionCartItem extends FoodDrink {
+  quantity: number;
+  note?: string;
 }
 
 export interface BookingInput {
@@ -177,12 +204,14 @@ export interface BookingInput {
   name: string;
   phone: string;
   email: string;
-  date: string;
-  time: string;
-  duration: number; // Số giờ
-  serviceId: string;
-  peopleCount: number;
+  date: string; // YYYY-MM-DD
+  time: string; // HH:mm
+  duration: number; // Hours
+  stationId: string;
+  storeId?: string; // Added: Link to specific store location
+  gameIds?: string[];
   note?: string;
+  paymentMethod?: PaymentMethod;
 }
 
 export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
@@ -191,15 +220,13 @@ export interface Booking extends BookingInput {
   _id: string;
   createdAt: string;
   status: BookingStatus;
+  paymentStatus: 'PAID' | 'UNPAID';
   totalPrice: number;
-  serviceName?: string; // Cache tên dịch vụ để hiển thị
+  stationName?: string;
+  endTime: string; // HH:mm (Calculated)
+  fnbOrders?: SessionCartItem[];
 }
 
-export interface NewsletterInput {
-  email: string;
-}
-
-// NEW: User Auth Types Expanded
 export interface User {
   _id: string;
   name: string;
@@ -207,7 +234,6 @@ export interface User {
   avatar?: string;
   role: 'USER' | 'ADMIN';
   password?: string; 
-  // Fields for checkout auto-fill
   phone?: string;
   address?: string;
   city?: string;
@@ -219,7 +245,6 @@ export interface AuthResponse {
   message?: string;
 }
 
-// NEW: Contact Form Input
 export interface ContactInput {
   name: string;
   email: string;
@@ -227,29 +252,20 @@ export interface ContactInput {
   message: string;
 }
 
-// NEW: Store Location Interface
+export interface NewsletterInput {
+  email: string;
+}
+
 export interface StoreLocation {
   _id: string;
   name: string;
   address: string;
-  city: string; // Used for filtering e.g., "hcm-q1"
+  city: string;
   image: string;
-  images?: string[]; // Added for slideshow
+  images?: string[];
   mapEmbedUrl: string;
   phone: string;
-  hours: {
-    weekday: string;
-    weekend: string;
-  };
-  amenities: {
-    icon: string;
-    label: string;
-    colorClass: string; // e.g., "text-green-600 bg-green-50"
-  }[];
-  equipment: {
-    icon: string;
-    name: string;
-    count: number;
-    colorClass: string; // e.g., "text-primary"
-  }[];
+  hours: { weekday: string; weekend: string };
+  amenities: { icon: string; label: string; colorClass: string }[];
+  equipment: { icon: string; name: string; count: number; colorClass: string }[];
 }

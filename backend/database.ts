@@ -1,7 +1,17 @@
-import { Product, Category, NewsArticle, Banner, Feature, GameStationImage, Brand, Service, User, Order, Booking, ContactInput, Coupon, StoreLocation } from '../shared/types';
+import { Product, Category, NewsArticle, Banner, Feature, GameStationImage, Brand, Station, User, Order, Booking, ContactInput, Coupon, StoreLocation, GameLibrary, FoodDrink } from '../shared/types';
 
-// NEW: User Database with expanded fields
 export const USERS_DB: User[] = [
+  {
+    _id: "admin_01",
+    name: "Quản trị viên",
+    email: "admin@gamestore.vn",
+    avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBRUSXdIL6ha_VAd4y9RotYT7WHSyA0nafpIrXt9Itnn0OYS07Yfws-fvH2jnOWMsa33ay8WbH0YQWFLZLf-0sqdmd72JhL47iJew1ae01llrD4OxkomXG_4IYrcT0MskneWWrcXfYmtGsJXJJmBEfbTWuAGAe0T_bFexgCjVjXuUaGdBQYtWqI8wnDsU7GfC-xpDv1MG-k7qXtO50pMXhq0rz2_EtOFBNqAFF5jTc7Jv5FcxGDtlyxJ2Pov3tUCEi_9TVzDxmdOw",
+    role: 'ADMIN',
+    password: 'admin123',
+    phone: '0999888777',
+    address: 'Trụ sở GameStore',
+    city: 'Hồ Chí Minh'
+  },
   {
     _id: "u1",
     name: "Game Thủ",
@@ -15,26 +25,112 @@ export const USERS_DB: User[] = [
   }
 ];
 
-// NEW: OTP Storage
+// Cấu hình thông tin thanh toán (Dùng cho VietQR và hiển thị)
+export const PAYMENT_INFO = {
+  bankName: "Techcombank",
+  bankId: "TCB", // Bin code hoặc short name hỗ trợ VietQR
+  accountNo: "19031234567890",
+  accountName: "CONG TY TNHH GAMESTORE VN",
+  template: "compact" // compact, compact2, qr_only, print
+};
+
 export const OTP_STORE: Record<string, string> = {};
-
-// NEW: Orders Database
 export const ORDERS_DB: Order[] = [];
-
-// NEW: Bookings Database
-export const BOOKINGS_DB: Booking[] = [];
-
-// NEW: Contact Messages DB
 export const CONTACT_MESSAGES_DB: ContactInput[] = [];
 
-// NEW: Coupons Database
+export const STATIONS_DB: Station[] = [
+  {
+    _id: "st1",
+    name: "PS5 Standard - Máy 01",
+    type: "PS5",
+    description: "Màn hình Sony 4K 55 inch, 2 tay cầm DualSense, Sofa đôi thoải mái.",
+    pricePerHour: 50000,
+    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAdUmYLTuUVnyHyrigwQMT9Eg9espSPKFoeVGH673f_oWVZ8fBDobW6TVyYA1vymSBT5ClyPEgNJ9b_o_JeKnt9XLqGk99XQQUCdY3ScrXCif8vmyCwF0ughnePW1gFZ74gL1keJpYJBr7GJszrSstCWGLF8RlROW51rZit8rfAuUs7X-mnbMUDYN53HWEa0eByPMxwHF3OE5sN3_YpBS9dYvUYokDUITQZ1XDXK5atAe9jORCYdodrIIW-pAKAD0y_xWO96EPi9Q",
+    status: "AVAILABLE",
+    zone: "Khu vực A"
+  },
+  {
+    _id: "st2",
+    name: "PS5 Pro - VIP Room",
+    type: "PS5",
+    description: "Phòng riêng cách âm, Ghế massage, Phục vụ đồ uống miễn phí.",
+    pricePerHour: 100000,
+    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAE07-XNlCMLuTrZqtggoCIAO0X2sWe9xLD38J0Q1mhjD7At2cndHoF8yJM2InbY4mgeEiz6ZtCEzerlbhkcgv_r4U6vujyEW9UXkcNCq4gPQDXC1VhepxLhJJdpkxf85fGGQSQVirbrr4FKQNxR0XoyvNlIb1ARQgFh6VVQoWlaP43T80n6VhPFZX_7pHJHU7dPpR7TzzMhBMSpqDmqol5x9nynNaXnBENZfdqHPUzLTy07MHsD4AjWZwCOrYBOV_YKvzpmzWAqw",
+    status: "AVAILABLE",
+    zone: "Khu vực VIP"
+  },
+  {
+    _id: "st3",
+    name: "Nintendo Switch - Máy 01",
+    type: "SWITCH",
+    description: "Dock xuất TV 4K, 4 Joy-con, Đầy đủ game Mario, Pokemon.",
+    pricePerHour: 40000,
+    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDPh0beSxdgnG5lapS27tTe1_bdTqY1Kt1dDAQKA_6DKOC7V1DkxWxgBB9G_vtck3E0s-KJ1cs2D6NdpQn176Mo8Uf4v7mOG7oNnsRj5x3zE7gBCVqoBXUnCx-k67cYmeIOfCrtfMFH5iuCwgFuHsJqb-TThdduZJC97cp7buhsrwRcVnbSSVI76rXb5hOLnCWBZ7i6rH35F4xf_Sgh1Xv_TC4khum6U3DjyJX-vARKhmHRQVLqBZDKXnTSnxg5TRF63piBmFmBXw",
+    status: "AVAILABLE",
+    zone: "Khu vực C"
+  },
+  {
+    _id: "st4",
+    name: "PC Ultra Gaming",
+    type: "PC",
+    description: "RTX 4090, Màn hình 240Hz, Phím cơ custom, Chuột Logitech Superlight.",
+    pricePerHour: 80000,
+    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAcFGsL8i3vxxlgnLNOds-6Y-LkQgbENtetJaTtODYH9Oju3JLbXzoHPG5sf-cmlkFousBHJvGBl-W5FjTDnr5-O67OSmbOKXDEllm8QgF9bPwOxkO9AIOJzA8YgnmceX-alYH4wYU55rxthxJ9qpdgn4qWdzmJYy7t4pLxvRKF_zDhnLlsClb7yZq2gBNVOKCZ0O55duztvJWquJcGmrFzP9zbKmULjdH4gIyaqvIfLqsOqAFPDQGOYMBa6dh2AFKG9D15C-M0SQ",
+    status: "MAINTENANCE",
+    zone: "Khu vực B"
+  }
+];
+
+export const GAMES_LIBRARY_DB: GameLibrary[] = [
+  { _id: "g1", title: "FC 24", isHot: true, platform: 'PS5', category: "Thể thao", players: "1-4 Players", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDyVLnq7lT-Bqy7W4Yur_cSeRwbv0L0pkLRKIr86pZX-hQlS3woWPcDx3Z5DZntkNAkU6jlGwif2STEHDuXHWh1xJ7rbOF6iW87O8WjGpSCKcQO8MX5xRk3Cu1AqTZ2VaVaHJpt_n_fv6tpurmpGoZDRqVyTO4Gox-foQZlhFF5bm7PHnfwS66T2edoBtE3euL8U5KrYmJLxKCN9ZQmqWQCDxVKPhaj_CNauUYYC_xLhtP0ENjj3OXjyBeEqjsW3_Nnn25A1J7A_Q" },
+  { _id: "g2", title: "God of War Ragnarok", isHot: true, platform: 'PS5', category: "Nhập vai", players: "1 Player", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDjby-1MIeJTEFOPu6esxpHiBtCpEyK28jSFZZpitmjvHNkq3g6n0gT0lnrAUab42B2w2i1a4MF4jHGFkoLyGc2KBdxkCWbDqueyinvK6SEhH85wslRsWL0vh7cT_Lt2urrklHYjbFjFvWbJfrAO1DaSMVP5Jye704hHT2TWJjLOTYiArHO-iuuKy63ONhVPnofZp3f1AodaLmhUT52SiGpRgiC4a9IAoERRvkztNq8E93KO-2Hw_T0nJxQGY8V8W4j7bwN2RDjUw" },
+  { _id: "g3", title: "Spider-Man 2", platform: 'PS5', category: "Hành động", players: "1 Player", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuADbS5MAbevZSWxunWc-2qV3JdxsQChgAm6SCDONfwN2fSFbKo0rWmGII3K2EmVQgjznV_vKkUFX6ZCVIYAS1cKUEvaT3bi315N2wed148GL8yBNMugJ-pgZMcR4qfT73phtk-lHRHehG8Q7Y_bgnab3ED0xamnu7Ny8suy6MLzX1DOj3atxQskTHS4BvLQAzmAFjls9H1IgNxeUGd0sCkn5oTfuy20x6f_HmUpFqsPeEFdBOLudNOE1Ym1B4c3NZIcDkPkJDNCVA" },
+  { _id: "g4", title: "Gran Turismo 7", platform: 'PS5', category: "Đua xe", players: "1-2 Players", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDd5dR1nJZ9Lq29HHpwUbvJmwrsa23KQocKJMH_urEkpX3JoOvT7NmJjHou26D5SwP5GoPojbboTAZYHAVrOXefMfU3ocbQZcpmn90P7k6o3pgmKFSazJSm1A45-HDx3O9QTnBkThTjZJa_os9zMaNu-GezaFB7XN-x5QZG960w9DrllZvXnlYCtywSyHuCV8Wusuut7OwkF_E11fDlB_4VFpuvYyE4cBPKdNqXyWP4t1LzQ4riYnxF3eN-J1S_eTXzI2BGTXR4Gw" },
+  { _id: "g5", title: "Black Myth: Wukong", isHot: true, platform: 'PS5', category: "Hành động", players: "1 Player", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAAW-1iR9Nt_HIZFlN_18kus6czP58L7iGzmfYIZj8cPSTGbq_SoJlLl5UUfWKx9OlECs-IpDKfuI1PBZAJX46euO75j5IDv1-Uz6Lxt3FGxmxp_OkqhJRrZqO4aGTLw9yJuWil8RGnQINlmBDo38WJ7EvBbjQ7PN9oSR44EUv7TfuMHPoGnVOJ8PvuSD0sUrxzSOgbfbo77WF6ZvPFeMtfYLw9FsdEae0-4cxvCGtwfRp2BIiJXVe0Kdw1zuBaxDhXUqMRzpCmYg" },
+  { _id: "g6", title: "Elden Ring", isHot: true, platform: 'PC', category: "RPG", players: "1 Player", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAAW-1iR9Nt_HIZFlN_18kus6czP58L7iGzmfYIZj8cPSTGbq_SoJlLl5UUfWKx9OlECs-IpDKfuI1PBZAJX46euO75j5IDv1-Uz6Lxt3FGxmxp_OkqhJRrZqO4aGTLw9yJuWil8RGnQINlmBDo38WJ7EvBbjQ7PN9oSR44EUv7TfuMHPoGnVOJ8PvuSD0sUrxzSOgbfbo77WF6ZvPFeMtfYLw9FsdEae0-4cxvCGtwfRp2BIiJXVe0Kdw1zuBaxDhXUqMRzpCmYg" },
+  { _id: "g7", title: "Tekken 8", platform: 'PS5', category: "Đối kháng", players: "2 Players", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDTUJkk-ujrp_HGGMBE1pfEQwdtp4X9qEwywc1ww7qKFuTRBcWLHKvdm7omv0rENihMOFVTs--WRsxtGGuFZLKbpw-kGkcTfGAzXv3bl7uc59oGPXS_S6MkyoxZt1rTuLLeVa8ge66vae8UR7FVzAygvDLUhOcyaa9Cx3Uwgev5zxC201yUgQn7bmpdK-mTzArvxNaRT6CHxMLZxbYQ2AwqsS8UGkm_wyqrDKa-kkGjNquiRau_lmQf5vvAL1Yb6fYovWL4t6rw6g" },
+  { _id: "g8", title: "Mario Kart 8 Deluxe", platform: 'SWITCH', category: "Đua xe", players: "1-4 Players", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDPh0beSxdgnG5lapS27tTe1_bdTqY1Kt1dDAQKA_6DKOC7V1DkxWxgBB9G_vtck3E0s-KJ1cs2D6NdpQn176Mo8Uf4v7mOG7oNnsRj5x3zE7gBCVqoBXUnCx-k67cYmeIOfCrtfMFH5iuCwgFuHsJqb-TThdduZJC97cp7buhsrwRcVnbSSVI76rXb5hOLnCWBZ7i6rH35F4xf_Sgh1Xv_TC4khum6U3DjyJX-vARKhmHRQVLqBZDKXnTSnxg5TRF63piBmFmBXw" },
+  { _id: "g9", title: "It Takes Two", isHot: true, platform: 'PS5', category: "Co-op", players: "2 Players", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuC519XN4hu9kHLR-f1PZfVN_E3cPs_Wrr5D1eQ5kYT9ORlCGsVhwtHMG18z-GFjA6Hy3CykYYc86LSg3P3cX5ci51uVQ_SOw-TELnstrwb61YWQVjgszc2Q370-tvdDRibSvsQbi3LNVd1SmLweGStoAqJjq4U-utXw2Zrn7cPLrpVr6t_2w87j1YGhDgEZzA9yHRcbddB72fYEqsFnt8fjrDt-QCN3qV9DbbqOteQp_-uFg8DLs7cVaAJ54OjybkAX0vqXzRE-eg" },
+  { _id: "g10", title: "Cyberpunk 2077", platform: 'PS5', category: "RPG", players: "1 Player", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDc4KDRQIeUp2NaSBG8ftMGBRUGk6QNVQhSLnQJsm-iLj5G6UeQe2uARtZ6qcynXVf8rw-E_yrHohN3wE5lA5i0rjk9uIoDtXc4Y_AcreMvomo20CMf19usHtUqHmvADfpheohP04oKFcVVRfRGUm0u6QyqIFRaZm_NQ859pewKP3R3dVwU21VucCS1C2PnxYvV8bpWR9Hh2s9QG8CjGg012_NbRO60VzaNLbEDdA1AS7m9AySevSgswLwh9FaMlDDWwm9yF42afg" }
+];
+
+export const FOOD_DRINK_DB: FoodDrink[] = [
+  { _id: "fd1", name: "Sting Dâu (Lon)", price: 15000, category: "DRINK", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDwkrkxv2nFeaOEGEBl8JiXnOlD-d2NiMxbSz6W3St6nbHQJcN6tjROKMn3NRUbxX75qDbO-R1osMzfsrFNzncP2MRrsSwJZSd0k9VJfV2Xuw88k9rag96wfRnXSpMlEO8KkfdMYeiXflc4ZvUaeksCApdysHSHGckzJu4nv0tCwf4Bq3WqpIEi0F2_ldJmxo2WVz1ZNfeBS0l9GH2F4Ddz1YYnCEf_GkIdDGX2OjEx_7N7S_NZO6DiLgtrhDV9jrTc_fzlBPdzcA", description: "Nước tăng lực hương dâu tây, giúp tỉnh táo tức thì." },
+  { _id: "fd2", name: "Mì Trộn Xúc Xích", price: 25000, category: "NOODLE", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAFUDKcfLGi0D_zPnIX9OE_mu0FietPhdExwmkwq-C4JGMNYDgtoocieWh4mFgHUDcQGdDuYK_Mz09zW_KFgBYjLQ19J1dV22vZYarW7c0qLUMIOifayj59CJHIX4BXiUnqoTDdJhIxpx-wc8XstxdFmsMFsHDAfHPbpLNHtSgYAfzEkmAAObggRgrdDnQOlszvlMOX1Ltac09X3_tSrhz0EcVA9akzmMUHt2Fayq9rnV1ZMQcaa-pV-k5JYhUnBXP8gvShMVuf1g", description: "Mì Indomie xào khô, xúc xích Đức nướng, rau cải ngọt." },
+  { _id: "fd3", name: "Khoai Tây Chiên", price: 30000, category: "SNACK", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuC7tzk5i5EazeMgGsXZ3SD8QX0aJWWZUGknVYiE9P94cNt7ETbjK5H64rXSJG5GKEkVFjMvN7BnVIbCnBpaZy2HD2HiIgV2EvUdqI0lF9bd2Us9yG0qPmLNJICt_zKJEbMFhLDiMmxcuooDRaA17wnVet5xwFDMWDiSkykGTNIXY01oClvIZCsOGk4R6AcTYNpILoi2ik3Uz0Mqr-HeQbRCG6Fl0zRHF0N_IIt1DCmSMS2FqWGKzF0G8lLFA-Pz6FaBsefIKZZlLw", description: "Khoai tây chiên giòn rụm, lắc phô mai thơm ngon." },
+  { _id: "fd4", name: "Cà Phê Sữa Đá", price: 20000, category: "COFFEE", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDwkrkxv2nFeaOEGEBl8JiXnOlD-d2NiMxbSz6W3St6nbHQJcN6tjROKMn3NRUbxX75qDbO-R1osMzfsrFNzncP2MRrsSwJZSd0k9VJfV2Xuw88k9rag96wfRnXSpMlEO8KkfdMYeiXflc4ZvUaeksCApdysHSHGckzJu4nv0tCwf4Bq3WqpIEi0F2_ldJmxo2WVz1ZNfeBS0l9GH2F4Ddz1YYnCEf_GkIdDGX2OjEx_7N7S_NZO6DiLgtrhDV9jrTc_fzlBPdzcA", description: "Cà phê Robusta đậm đà, pha phin truyền thống." },
+  { _id: "fd5", name: "Trà Đào Cam Sả", price: 30000, category: "TEA", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDwkrkxv2nFeaOEGEBl8JiXnOlD-d2NiMxbSz6W3St6nbHQJcN6tjROKMn3NRUbxX75qDbO-R1osMzfsrFNzncP2MRrsSwJZSd0k9VJfV2Xuw88k9rag96wfRnXSpMlEO8KkfdMYeiXflc4ZvUaeksCApdysHSHGckzJu4nv0tCwf4Bq3WqpIEi0F2_ldJmxo2WVz1ZNfeBS0l9GH2F4Ddz1YYnCEf_GkIdDGX2OjEx_7N7S_NZO6DiLgtrhDV9jrTc_fzlBPdzcA", description: "Trà đào thanh mát, miếng đào giòn ngọt." }
+];
+
+const today = new Date().toISOString().split('T')[0];
+export const BOOKINGS_DB: Booking[] = [
+  {
+    _id: "B-8392",
+    userId: "u1",
+    name: "Nguyễn Văn A",
+    phone: "090xxxxxxx",
+    email: "user@example.com",
+    date: today,
+    time: "14:30",
+    duration: 2,
+    stationId: "st1",
+    storeId: "hcm-q1", // Linked store ID
+    status: "CONFIRMED",
+    paymentStatus: "PAID",
+    totalPrice: 100000,
+    stationName: "Máy PS5 - Station A",
+    endTime: "16:30",
+    gameIds: ["g1", "g2", "g3"],
+    createdAt: new Date().toISOString()
+  }
+];
+
 export const COUPONS_DB: Coupon[] = [
   { code: 'GAME10', discount: 10, type: 'PERCENT', description: 'Giảm 10% tối đa 500k', minOrderValue: 500000 },
   { code: 'WELCOMES50', discount: 50000, type: 'FIXED', description: 'Giảm 50k cho đơn từ 1 triệu', minOrderValue: 1000000 },
   { code: 'FREESHIP', discount: 30000, type: 'FIXED', description: 'Miễn phí vận chuyển (tối đa 30k)', minOrderValue: 200000 }
 ];
 
-// NEW: Stores Database
 export const STORES_DB: StoreLocation[] = [
   {
     _id: "hcm-q1",
@@ -49,98 +145,36 @@ export const STORES_DB: StoreLocation[] = [
     ],
     mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.4946681007846!2d106.70175551474896!3d10.773374292323565!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f40a3b49e59%3A0xa2726315a8c176b9!2sHo%20Chi%20Minh%20City!5e0!3m2!1sen!2s!4v1625633652876!5m2!1sen!2s",
     phone: "1900 1234",
-    hours: {
-      weekday: "09:00 - 22:00",
-      weekend: "08:00 - 23:00"
-    },
+    hours: { weekday: "09:00 - 22:00", weekend: "08:00 - 23:00" },
     amenities: [
-      { icon: "wifi", label: "Wi-Fi Tốc độ cao (WiFi 6)", colorClass: "text-green-600 bg-green-50" },
-      { icon: "local_parking", label: "Chỗ đậu xe miễn phí", colorClass: "text-blue-600 bg-blue-50" },
-      { icon: "fastfood", label: "Khu vực F&B & Snack", colorClass: "text-orange-600 bg-orange-50" },
-      { icon: "ac_unit", label: "Máy lạnh 24/7", colorClass: "text-indigo-600 bg-indigo-50" },
-      { icon: "storefront", label: "Shop bán thẻ & Figure", colorClass: "text-pink-600 bg-pink-50" },
-      { icon: "wc", label: "WC sạch sẽ tiện nghi", colorClass: "text-yellow-600 bg-yellow-50" }
+      { icon: "wifi", label: "Wi-Fi 6", colorClass: "text-green-600 bg-green-50" },
+      { icon: "local_parking", label: "Gửi xe Free", colorClass: "text-blue-600 bg-blue-50" },
+      { icon: "fastfood", label: "Đồ ăn nhẹ", colorClass: "text-orange-600 bg-orange-50" }
     ],
     equipment: [
       { icon: "sports_esports", name: "PS5 Pro", count: 10, colorClass: "text-primary" },
-      { icon: "stadia_controller", name: "Switch OLED", count: 8, colorClass: "text-red-500" },
-      { icon: "desktop_windows", name: "PC RTX 4090", count: 20, colorClass: "text-purple-600" },
-      { icon: "joystick", name: "Xbox Series X", count: 4, colorClass: "text-green-600" }
+      { icon: "desktop_windows", name: "PC RTX 4090", count: 20, colorClass: "text-purple-600" }
     ]
   },
   {
-    _id: "hcm-q7",
-    name: "GameWorld Crescent Mall",
-    address: "101 Tôn Dật Tiên, Tân Phú, Quận 7, TP.HCM",
+    _id: "hcm-td",
+    name: "GameWorld Thủ Đức",
+    address: "234 Võ Văn Ngân, TP. Thủ Đức, TP. Hồ Chí Minh",
     city: "hcm",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuASvtfge3PsR4i7Un-kAcEoyg0hruOU1f50La2O_JEQ-bDgnp29rrQ51lk-G8_S-rYqWdfJg5Ub3sRWjQFPiYxN17BtJHZnR4lciBLRQBGlu4k4sQVa_DS7-h8RiMO_8SamoYTWesmgtlctCLc4_kubB19_dNIPIUgbjKsXGUQ3xCHgX0dKh1aYX3n9f2fHQ_0usrh2PkQthHhFCNHuvRJ5xVOjZEJOVO-1FrEdz1GkXByCMl5oShzEwn9YY2ZotpMzYl9_KS6wfA",
+    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBxoV3kEbK337tSIIGQ29-5AsY-2u7FUa4TkbVAQm81xYcqrHl18ZD-K2YjsjkK46c4XBmFeYAu-wNmepoldxOBhmKpC9SZEh3Sy7kANGRP9bU6Pt2Lbezskndl3wABWHK3qotmxcsdR-M_DTlE77jso7As0CHrsmgM4w4o1T_rLj_XB7yMKcsMUH7y1bXMyASEyBc1vEP4vycgDI56AlXDT0M2J0nJqldvKuWV0rbN79iG__zzkGfSJnwD5MsN1lVAmkAT92pPfw",
     images: [
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuASvtfge3PsR4i7Un-kAcEoyg0hruOU1f50La2O_JEQ-bDgnp29rrQ51lk-G8_S-rYqWdfJg5Ub3sRWjQFPiYxN17BtJHZnR4lciBLRQBGlu4k4sQVa_DS7-h8RiMO_8SamoYTWesmgtlctCLc4_kubB19_dNIPIUgbjKsXGUQ3xCHgX0dKh1aYX3n9f2fHQ_0usrh2PkQthHhFCNHuvRJ5xVOjZEJOVO-1FrEdz1GkXByCMl5oShzEwn9YY2ZotpMzYl9_KS6wfA",
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuC4_vB1t508LKMfaQlvsTjnYf_69vj7F5kNTZs2poV9Xhms_ZjdWRAtsVemHWYa3bgkFAsNfTt7LsRmBViZVg7Mte9xpJ0fmI15rwXiUnc0_vPalxYqS0nHTFiXFkYHbkpQKBEtTp3XQfJAD4hmAlXQgU8YXW52HnhWfJmvn-fxTQ3i2ynjJGMI_lxGTBwmbU5taJ7KtlGbFJQxDuJ2GIJdCIT3HsC3lIXCz13SCt8CK8Ubu5fSVTjQLojRxXc90aseFl2fmX1txw"
-    ],
-    mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.669726937899!2d106.71638231474885!3d10.759917992332152!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f9023a3a85d%3A0x9259bad475336d5c!2sCrescent%20Mall!5e0!3m2!1sen!2s!4v1625633652876!5m2!1sen!2s",
-    phone: "1900 5678",
-    hours: {
-      weekday: "10:00 - 22:00",
-      weekend: "09:00 - 23:00"
-    },
-    amenities: [
-      { icon: "wifi", label: "Wi-Fi 6", colorClass: "text-green-600 bg-green-50" },
-      { icon: "local_cafe", label: "Quầy Bar", colorClass: "text-orange-600 bg-orange-50" },
-      { icon: "local_parking", label: "Hầm để xe TTTM", colorClass: "text-blue-600 bg-blue-50" }
-    ],
-    equipment: [
-      { icon: "sports_esports", name: "PS5", count: 15, colorClass: "text-primary" },
-      { icon: "desktop_windows", name: "PC Gaming", count: 10, colorClass: "text-purple-600" }
-    ]
-  },
-  {
-    _id: "hn-cg",
-    name: "GameWorld Cầu Giấy",
-    address: "241 Xuân Thủy, Dịch Vọng Hậu, Cầu Giấy, Hà Nội",
-    city: "hn",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDD5oFLKS7zzAUlmuwmm3MuXcJESRBgmbdWVmnrQQ5EkLfN8xqLHav_diAc0mBsNXV31b6uKFHT9TfCJTB7MoQm4dTLunyVdxVju7AXfWWoZ0QsZl6ZGUPcdEawqnQBgbSEyGNI43-lRsj8HNeobwfM5sjIiXr4jMEsJ40w2yxtOxoTfBftzGvEayGVV5G6aOaSvEwa578GvZwKsOHTJJGGZrNCbb34ixOd5pXkMj-k8sTwsuBLalMnYsrgXU2C2Vvo88xbaJ2H1w",
-    images: [
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuDD5oFLKS7zzAUlmuwmm3MuXcJESRBgmbdWVmnrQQ5EkLfN8xqLHav_diAc0mBsNXV31b6uKFHT9TfCJTB7MoQm4dTLunyVdxVju7AXfWWoZ0QsZl6ZGUPcdEawqnQBgbSEyGNI43-lRsj8HNeobwfM5sjIiXr4jMEsJ40w2yxtOxoTfBftzGvEayGVV5G6aOaSvEwa578GvZwKsOHTJJGGZrNCbb34ixOd5pXkMj-k8sTwsuBLalMnYsrgXU2C2Vvo88xbaJ2H1w",
         "https://lh3.googleusercontent.com/aida-public/AB6AXuBxoV3kEbK337tSIIGQ29-5AsY-2u7FUa4TkbVAQm81xYcqrHl18ZD-K2YjsjkK46c4XBmFeYAu-wNmepoldxOBhmKpC9SZEh3Sy7kANGRP9bU6Pt2Lbezskndl3wABWHK3qotmxcsdR-M_DTlE77jso7As0CHrsmgM4w4o1T_rLj_XB7yMKcsMUH7y1bXMyASEyBc1vEP4vycgDI56AlXDT0M2J0nJqldvKuWV0rbN79iG__zzkGfSJnwD5MsN1lVAmkAT92pPfw"
     ],
-    mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.863980698379!2d105.7818383147634!3d21.038127985993215!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ab354920c233%3A0x5d0313a3bf853630!2zXuG6oW4gVGjhuqNvLCBD4bqndSBHaeG6pXksIEjDoCBO4buZaQ!5e0!3m2!1sen!2s!4v1625633652876!5m2!1sen!2s",
-    phone: "024 3789 9999",
-    hours: {
-      weekday: "09:00 - 22:30",
-      weekend: "08:00 - 23:00"
-    },
+    mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.4946681007846!2d106.76175551474896!3d10.853374292323565!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3175276398969f7b%3A0x9672b7dd9a76ccb8!2sVincom%20Plaza%20Thu%20Duc!5e0!3m2!1sen!2s!4v1625633652876!5m2!1sen!2s",
+    phone: "1900 5678",
+    hours: { weekday: "08:00 - 22:00", weekend: "08:00 - 23:00" },
     amenities: [
-      { icon: "wifi", label: "Wi-Fi", colorClass: "text-green-600 bg-green-50" },
-      { icon: "local_cafe", label: "Coffee", colorClass: "text-brown-600 bg-amber-50" }
+      { icon: "ac_unit", label: "Máy lạnh", colorClass: "text-blue-600 bg-blue-50" },
+      { icon: "local_parking", label: "Gửi xe Free", colorClass: "text-blue-600 bg-blue-50" }
     ],
     equipment: [
-      { icon: "desktop_windows", name: "PC RTX 3080", count: 30, colorClass: "text-purple-600" },
-      { icon: "sports_esports", name: "PS5", count: 5, colorClass: "text-primary" }
-    ]
-  },
-  {
-    _id: "dn-st",
-    name: "GameWorld Sơn Trà",
-    address: "45 Võ Văn Kiệt, Phước Mỹ, Sơn Trà, Đà Nẵng",
-    city: "dn",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuA6spfHfqbUIu9sDrh08xH-W-CIx6hwXTpjUwKSaY4vz-Y8lbog6fuYEP0V3LhPP5W2R17tpegD7qGAQykkgru9EZT_c5vZyV-QacVDkLUhXYTM310XDY00TEOVUO8gbzzdEWiWbuEBt_H1Al9Q42BEYmjrG0DYwz8TnG4g1ZMEgfVBxThEvvIVhj1M5tDgWd7UQ1SU64qkKBuSIJ9CJ3lRou-QI8cqLNmafEgNelJqvjSwSeAikdInkgOsu-yOrqsnMcycFD1UyQ",
-    images: [
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuA6spfHfqbUIu9sDrh08xH-W-CIx6hwXTpjUwKSaY4vz-Y8lbog6fuYEP0V3LhPP5W2R17tpegD7qGAQykkgru9EZT_c5vZyV-QacVDkLUhXYTM310XDY00TEOVUO8gbzzdEWiWbuEBt_H1Al9Q42BEYmjrG0DYwz8TnG4g1ZMEgfVBxThEvvIVhj1M5tDgWd7UQ1SU64qkKBuSIJ9CJ3lRou-QI8cqLNmafEgNelJqvjSwSeAikdInkgOsu-yOrqsnMcycFD1UyQ",
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuBVoc9MQkhc0xlxGJeWWRaKuVx4rjT44fuoFD4UIXs5G43aKSMLZhFezDDjyLjX6waBXVSlRGWPf9oKoHTwH_G0yhNBs3fGIftBNVlpR3UD9S6Fs5xKEa2RBt8c4KJMniiyChZjDijGHOqZfJx_7BxhaISmsbzwF7P9I-3Aq7bRSoSr7AG31M0tm4XytFPjVLgMXAKQr1gXHV03pCV_rHS6DdLhuRZJvJd2Tt_ir9uVwHephOmlA619L1etyz9n5ScLTrHC9wbHdg"
-    ],
-    mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3833.823439498263!2d108.24343831470532!3d16.06906598888126!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x314217743d71239d%3A0x805908221626572!2sV%C3%B5%20V%C4%83n%20Ki%E1%BB%87t%2C%20S%C6%A1n%20Tr%C3%A0%2C%20%C4%90%C3%A0%20N%E1%BA%B5ng!5e0!3m2!1sen!2s!4v1625633652876!5m2!1sen!2s",
-    phone: "0236 3123 456",
-    hours: {
-      weekday: "08:00 - 22:00",
-      weekend: "08:00 - 23:00"
-    },
-    amenities: [
-      { icon: "wifi", label: "Wi-Fi", colorClass: "text-green-600 bg-green-50" },
-      { icon: "ac_unit", label: "Máy lạnh", colorClass: "text-blue-600 bg-blue-50" }
-    ],
-    equipment: [
-      { icon: "desktop_windows", name: "PC Gaming", count: 40, colorClass: "text-purple-600" }
+      { icon: "sports_esports", name: "PS5 Standard", count: 15, colorClass: "text-primary" },
+      { icon: "videogame_asset", name: "Nintendo Switch", count: 8, colorClass: "text-red-600" }
     ]
   }
 ];
@@ -160,216 +194,40 @@ export const BANNERS_DB: Banner[] = [
       { text: "120", label: "FPS", bg: "bg-indigo-500 text-white font-bold" },
       { text: "+1k", label: "Đã bán", bg: "bg-white text-slate-900 font-bold border border-gray-200" }
     ]
-  },
-  {
-    _id: "b2",
-    badge: "Mới ra mắt",
-    title: "Nintendo Switch",
-    highlightText: "OLED Model",
-    description: "Màn hình OLED 7 inch rực rỡ, chân đế rộng có thể điều chỉnh, dock có cổng LAN và bộ nhớ trong 64GB.",
-    imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAAW-1iR9Nt_HIZFlN_18kus6czP58L7iGzmfYIZj8cPSTGbq_SoJlLl5UUfWKx9OlECs-IpDKfuI1PBZAJX46euO75j5IDv1-Uz6Lxt3FGxmxp_OkqhJRrZqO4aGTLw9yJuWil8RGnQINlmBDo38WJ7EvBbjQ7PN9oSR44EUv7TfuMHPoGnVOJ8PvuSD0sUrxzSOgbfbo77WF6ZvPFeMtfYLw9FsdEae0-4cxvCGtwfRp2BIiJXVe0Kdw1zuBaxDhXUqMRzpCmYg", 
-    primaryBtn: "Khám Phá",
-    secondaryBtn: "So Sánh",
-    stats: [
-      { text: "7\"", label: "OLED", bg: "bg-red-600 text-white font-bold" },
-      { text: "64", label: "GB", bg: "bg-gray-800 text-white font-bold" },
-      { text: "Hot", label: "Trend", bg: "bg-yellow-400 text-slate-900 font-bold" }
-    ]
-  },
-  {
-    _id: "b3",
-    badge: "Limited Edition",
-    title: "Gaming Gear",
-    highlightText: "Bộ Sưu Tập ROG",
-    description: "Nâng tầm trải nghiệm với trọn bộ Gaming Gear cao cấp từ ASUS ROG. Bàn phím cơ, chuột siêu nhẹ và tai nghe 7.1.",
-    imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuC4_vB1t508LKMfaQlvsTjnYf_69vj7F5kNTZs2poV9Xhms_ZjdWRAtsVemHWYa3bgkFAsNfTt7LsRmBViZVg7Mte9xpJ0fmI15rwXiUnc0_vPalxYqS0nHTFiXFkYHbkpQKBEtTp3XQfJAD4hmAlXQgU8YXW52HnhWfJmvn-fxTQ3i2ynjJGMI_lxGTBwmbU5taJ7KtlGbFJQxDuJ2GIJdCIT3HsC3lIXCz13SCt8CK8Ubu5fSVTjQLojRxXc90aseFl2fmX1txw",
-    primaryBtn: "Mua Ngay",
-    secondaryBtn: "Xem Review",
-    stats: [
-      { text: "RGB", label: "Aura", bg: "bg-purple-600 text-white font-bold" },
-      { text: "-20%", label: "Sale", bg: "bg-red-500 text-white font-bold" },
-      { text: "Free", label: "Ship", bg: "bg-green-500 text-white font-bold" }
-    ]
   }
 ];
 
 export const GAME_STATION_IMAGES_DB: GameStationImage[] = [
-  {
-    _id: "img1",
-    url: "https://lh3.googleusercontent.com/aida-public/AB6AXuBxoV3kEbK337tSIIGQ29-5AsY-2u7FUa4TkbVAQm81xYcqrHl18ZD-K2YjsjkK46c4XBmFeYAu-wNmepoldxOBhmKpC9SZEh3Sy7kANGRP9bU6Pt2Lbezskndl3wABWHK3qotmxcsdR-M_DTlE77jso7As0CHrsmgM4w4o1T_rLj_XB7yMKcsMUH7y1bXMyASEyBc1vEP4vycgDI56AlXDT0M2J0nJqldvKuWV0rbN79iG__zzkGfSJnwD5MsN1lVAmkAT92pPfw",
-    alt: "Phòng VIP 1"
-  },
-  {
-    _id: "img2",
-    url: "https://lh3.googleusercontent.com/aida-public/AB6AXuBVoc9MQkhc0xlxGJeWWRaKuVx4rjT44fuoFD4UIXs5G43aKSMLZhFezDDjyLjX6waBXVSlRGWPf9oKoHTwH_G0yhNBs3fGIftBNVlpR3UD9S6Fs5xKEa2RBt8c4KJMniiyChZjDijGHOqZfJx_7BxhaISmsbzwF7P9I-3Aq7bRSoSr7AG31M0tm4XytFPjVLgMXAKQr1gXHV03pCV_rHS6DdLhuRZJvJd2Tt_ir9uVwHephOmlA619L1etyz9n5ScLTrHC9wbHdg",
-    alt: "Khu vực PS5"
-  },
-  {
-    _id: "img3",
-    url: "https://lh3.googleusercontent.com/aida-public/AB6AXuC4_vB1t508LKMfaQlvsTjnYf_69vj7F5kNTZs2poV9Xhms_ZjdWRAtsVemHWYa3bgkFAsNfTt7LsRmBViZVg7Mte9xpJ0fmI15rwXiUnc0_vPalxYqS0nHTFiXFkYHbkpQKBEtTp3XQfJAD4hmAlXQgU8YXW52HnhWfJmvn-fxTQ3i2ynjJGMI_lxGTBwmbU5taJ7KtlGbFJQxDuJ2GIJdCIT3HsC3lIXCz13SCt8CK8Ubu5fSVTjQLojRxXc90aseFl2fmX1txw",
-    alt: "Phòng Stream"
-  }
+  { _id: "img1", url: "https://lh3.googleusercontent.com/aida-public/AB6AXuBxoV3kEbK337tSIIGQ29-5AsY-2u7FUa4TkbVAQm81xYcqrHl18ZD-K2YjsjkK46c4XBmFeYAu-wNmepoldxOBhmKpC9SZEh3Sy7kANGRP9bU6Pt2Lbezskndl3wABWHK3qotmxcsdR-M_DTlE77jso7As0CHrsmgM4w4o1T_rLj_XB7yMKcsMUH7y1bXMyASEyBc1vEP4vycgDI56AlXDT0M2J0nJqldvKuWV0rbN79iG__zzkGfSJnwD5MsN1lVAmkAT92pPfw", alt: "Phòng VIP 1" },
+  { _id: "img2", url: "https://lh3.googleusercontent.com/aida-public/AB6AXuBVoc9MQkhc0xlxGJeWWRaKuVx4rjT44fuoFD4UIXs5G43aKSMLZhFezDDjyLjX6waBXVSlRGWPf9oKoHTwH_G0yhNBs3fGIftBNVlpR3UD9S6Fs5xKEa2RBt8c4KJMniiyChZjDijGHOqZfJx_7BxhaISmsbzwF7P9I-3Aq7bRSoSr7AG31M0tm4XytFPjVLgMXAKQr1gXHV03pCV_rHS6DdLhuRZJvJd2Tt_ir9uVwHephOmlA619L1etyz9n5ScLTrHC9wbHdg", alt: "Khu vực PS5" }
 ];
 
 export const FEATURES_DB: Feature[] = [
-  {
-    _id: "f1",
-    icon: "verified_user",
-    color: "text-blue-600 bg-blue-50",
-    title: "Bảo Hành Chính Hãng",
-    description: "Cam kết 100% sản phẩm chính hãng, bảo hành 12-24 tháng theo tiêu chuẩn nhà sản xuất."
-  },
-  {
-    _id: "f2",
-    icon: "rocket_launch",
-    color: "text-green-600 bg-green-50",
-    title: "Giao Hàng Hỏa Tốc",
-    description: "Nhận hàng trong 2H nội thành HCM & HN. Đóng gói chống sốc chuyên nghiệp."
-  },
-  {
-    _id: "f3",
-    icon: "loyalty",
-    color: "text-purple-600 bg-purple-50",
-    title: "Ưu Đãi Hội Viên",
-    description: "Tích điểm đổi quà, giảm giá sinh nhật và ưu đãi đặc quyền cho khách hàng thân thiết."
-  }
+  { _id: "f1", icon: "verified_user", color: "text-blue-600 bg-blue-50", title: "Bảo Hành Chính Hãng", description: "Cam kết 100% sản phẩm chính hãng, bảo hành 12-24 tháng." },
+  { _id: "f2", icon: "rocket_launch", color: "text-green-600 bg-green-50", title: "Giao Hàng Hỏa Tốc", description: "Nhận hàng trong 2H nội thành HCM & HN." }
 ];
 
 export const BRANDS_DB: Brand[] = [
   { _id: "br1", name: "Sony", slug: "sony" },
   { _id: "br2", name: "Nintendo", slug: "nintendo" },
-  { _id: "br3", name: "Konami", slug: "konami" },
-  { _id: "br4", name: "Bandai", slug: "bandai" },
-  { _id: "br5", name: "Logitech", slug: "logitech" },
-  { _id: "br6", name: "Razer", slug: "razer" },
-  { _id: "br7", name: "Microsoft", slug: "microsoft" }
-];
-
-export const SERVICES_DB: Service[] = [
-  {
-    _id: "sv1",
-    name: "Phòng Máy PS5 Standard",
-    description: "Trải nghiệm PS5 trên màn hình 4K 65 inch, âm thanh soundbar sống động. Ghế sofa thoải mái cho 2 người.",
-    pricePerHour: 40000,
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBVoc9MQkhc0xlxGJeWWRaKuVx4rjT44fuoFD4UIXs5G43aKSMLZhFezDDjyLjX6waBXVSlRGWPf9oKoHTwH_G0yhNBs3fGIftBNVlpR3UD9S6Fs5xKEa2RBt8c4KJMniiyChZjDijGHOqZfJx_7BxhaISmsbzwF7P9I-3Aq7bRSoSr7AG31M0tm4XytFPjVLgMXAKQr1gXHV03pCV_rHS6DdLhuRZJvJd2Tt_ir9uVwHephOmlA619L1etyz9n5ScLTrHC9wbHdg",
-    amenities: ["Màn hình 65\" 4K", "2 Tay cầm", "Nước uống Free", "Máy lạnh"]
-  },
-  {
-    _id: "sv2",
-    name: "PC Gaming Room VIP",
-    description: "Dàn PC cấu hình khủng RTX 4090, màn hình 360Hz. Gear xịn full Razer/Logitech. Không gian riêng tư cách âm.",
-    pricePerHour: 30000,
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBxoV3kEbK337tSIIGQ29-5AsY-2u7FUa4TkbVAQm81xYcqrHl18ZD-K2YjsjkK46c4XBmFeYAu-wNmepoldxOBhmKpC9SZEh3Sy7kANGRP9bU6Pt2Lbezskndl3wABWHK3qotmxcsdR-M_DTlE77jso7As0CHrsmgM4w4o1T_rLj_XB7yMKcsMUH7y1bXMyASEyBc1vEP4vycgDI56AlXDT0M2J0nJqldvKuWV0rbN79iG__zzkGfSJnwD5MsN1lVAmkAT92pPfw",
-    amenities: ["RTX 4090", "Màn 360Hz", "Ghế Gaming", "Đồ ăn phục vụ"]
-  }
+  { _id: "br3", name: "Logitech", slug: "logitech" },
+  { _id: "br4", name: "Razer", slug: "razer" }
 ];
 
 export const CATEGORIES_DB: Category[] = [
-  {
-    _id: "c1",
-    name: "PlayStation",
-    subtitle: "Console & Games",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBboKbbC_aBHIBmwqitpDUi92wZPdBPhMo6aXYNcfvFiQuayZACEzP0a70HVIrqrmvd3WfIJXw1WRIMW1_kn6mPX_yUOoTk2jjByjgmtKNmcpOa10TJeAgj3zQ5enho7gBF7A0MjWoLs_ZXVWSt0JiNDJpo_Ou8XkZ86ngnVGmtAVxImaMTg1YPS1tZXdxzbXl3E5qGV2aqw1BbqAJlklxpoYQqTvBfhVcibJzY1COrnwHqyQd-ksQIXPTV3vnK13XolB-T9OD88w",
-    icon: "stadia_controller",
-    slug: "playstation",
-    code: "PLAYSTATION"
-  },
-  {
-    _id: "c2",
-    name: "Nintendo",
-    subtitle: "Switch & Accessories",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAAW-1iR9Nt_HIZFlN_18kus6czP58L7iGzmfYIZj8cPSTGbq_SoJlLl5UUfWKx9OlECs-IpDKfuI1PBZAJX46euO75j5IDv1-Uz6Lxt3FGxmxp_OkqhJRrZqO4aGTLw9yJuWil8RGnQINlmBDo38WJ7EvBbjQ7PN9oSR44EUv7TfuMHPoGnVOJ8PvuSD0sUrxzSOgbfbo77WF6ZvPFeMtfYLw9FsdEae0-4cxvCGtwfRp2BIiJXVe0Kdw1zuBaxDhXUqMRzpCmYg",
-    icon: "videogame_asset",
-    slug: "nintendo",
-    code: "NINTENDO"
-  },
-  {
-    _id: "c3",
-    name: "Xbox",
-    subtitle: "Console & GamePass",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBEjKtTrMb_Ru1KabqxAbwfbf7HDxun7XCXfwQuZMs5QUYtBAzTmXTYzYJC9QA-YKz6d804i9AV3XXfPPhUvQWI_1ryQwiRcgNRwJpAlvW-X31ak2MlQ00c84ENIsIltkzIA5Fd7E3JbWNLovArpNGhxgQ1h4Hpd_YjYV5YFhjOFZWSFsBYeHmBhmayOQHdUmu5AxTEVI8qeZhHCnkEQfFNtMtRGsr7Yi3c8pH5EG8uCXJPuCT8ORbaU9PLa3maCinjf53Ez6GJug",
-    icon: "toys",
-    slug: "xbox",
-    code: "XBOX"
-  },
-  {
-    _id: "c4",
-    name: "Phụ Kiện",
-    subtitle: "Gaming Gear",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuC4_vB1t508LKMfaQlvsTjnYf_69vj7F5kNTZs2poV9Xhms_ZjdWRAtsVemHWYa3bgkFAsNfTt7LsRmBViZVg7Mte9xpJ0fmI15rwXiUnc0_vPalxYqS0nHTFiXFkYHbkpQKBEtTp3XQfJAD4hmAlXQgU8YXW52HnhWfJmvn-fxTQ3i2ynjJGMI_lxGTBwmbU5taJ7KtlGbFJQxDuJ2GIJdCIT3HsC3lIXCz13SCt8CK8Ubu5fSVTjQLojRxXc90aseFl2fmX1txw",
-    icon: "headphones",
-    slug: "accessories",
-    code: "ACCESSORIES"
-  }
+  { _id: "c1", name: "PlayStation", subtitle: "Console & Games", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBboKbbC_aBHIBmwqitpDUi92wZPdBPhMo6aXYNcfvFiQuayZACEzP0a70HVIrqrmvd3WfIJXw1WRIMW1_kn6mPX_yUOoTk2jjByjgmtKNmcpOa10TJeAgj3zQ5enho7gBF7A0MjWoLs_ZXVWSt0JiNDJpo_Ou8XkZ86ngnVGmtAVxImaMTg1YPS1tZXdxzbXl3E5qGV2aqw1BbqAJlklxpoYQqTvBfhVcibJzY1COrnwHqyQd-ksQIXPTV3vnK13XolB-T9OD88w", icon: "stadia_controller", slug: "playstation", code: "PLAYSTATION" },
+  { _id: "c2", name: "Nintendo", subtitle: "Switch & Accessories", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAAW-1iR9Nt_HIZFlN_18kus6czP58L7iGzmfYIZj8cPSTGbq_SoJlLl5UUfWKx9OlECs-IpDKfuI1PBZAJX46euO75j5IDv1-Uz6Lxt3FGxmxp_OkqhJRrZqO4aGTLw9yJuWil8RGnQINlmBDo38WJ7EvBbjQ7PN9oSR44EUv7TfuMHPoGnVOJ8PvuSD0sUrxzSOgbfbo77WF6ZvPFeMtfYLw9FsdEae0-4cxvCGtwfRp2BIiJXVe0Kdw1zuBaxDhXUqMRzpCmYg", icon: "videogame_asset", slug: "nintendo", code: "NINTENDO" }
 ];
 
 export const ARTICLES_DB: NewsArticle[] = [
-  {
-    _id: "n1",
-    title: "Sony chính thức công bố PS5 Pro với hiệu năng tăng 45%",
-    excerpt: "Phiên bản nâng cấp giữa vòng đời của PlayStation 5 hứa hẹn mang lại trải nghiệm 4K 60fps ổn định cho mọi tựa game AAA.",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuD4gp_7FG2yU6PEHg4dMrv1sH2WP-g2uooiD8yztRruCFmB4Y4Au9KFYJog_88xjl4_fcj-BddbZv0UuFw1i-VQghoofNN6qqxmfmAF9YR2JfX9CSiD-4-CtC9NsaE_hpNvqMolB2MSXcDTvZXfoIfW7w3KDsfPJRa6FJRPlCKgg9zC6pui6tDSStd0BrRk9yGmGKCw8gBP9pJW5di_5fqEF6q7ARlm5bLwF3YWcoomV8c09XvRYw1qgh5RfudSUCWOZ3-Sq5NpMQ",
-    category: "CÔNG NGHỆ",
-    categoryColor: "text-blue-600 bg-blue-50",
-    date: "12/03/2024",
-    readTime: "5 phút đọc"
-  },
-  {
-    _id: "n2",
-    title: "Top 10 game hay nhất trên Nintendo Switch năm 2024",
-    excerpt: "Tổng hợp những tựa game không thể bỏ qua cho các fan của Nintendo trong năm nay, từ Mario đến Zelda.",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAAW-1iR9Nt_HIZFlN_18kus6czP58L7iGzmfYIZj8cPSTGbq_SoJlLl5UUfWKx9OlECs-IpDKfuI1PBZAJX46euO75j5IDv1-Uz6Lxt3FGxmxp_OkqhJRrZqO4aGTLw9yJuWil8RGnQINlmBDo38WJ7EvBbjQ7PN9oSR44EUv7TfuMHPoGnVOJ8PvuSD0sUrxzSOgbfbo77WF6ZvPFeMtfYLw9FsdEae0-4cxvCGtwfRp2BIiJXVe0Kdw1zuBaxDhXUqMRzpCmYg",
-    category: "GAME",
-    categoryColor: "text-red-600 bg-red-50",
-    date: "10/03/2024",
-    readTime: "8 phút đọc"
-  },
-  {
-    _id: "n3",
-    title: "Giải đấu Pokemon TCG: Road to World Championship 2024",
-    excerpt: "Thông tin chi tiết về giải đấu thẻ bài Pokemon lớn nhất năm tại Việt Nam. Cơ hội giành vé đi Hawaii.",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCfMMUm8DhB21rNEC9PHm47iZnqEzDeiduejhRPidBuFKt3RJieG4rEyPeNFsEyepi6A9AVeQJtrz9mvDpAhHhIog0mCxrG4oCCGy6L2_TUWM_gkgFjjm0d5Gqk9RAn-PLLaEU47-pdmV2oH2nDZDHdAE3ULm7gE14ZTUPl-Lcwo2t_o_S7kpyBT8MPUmZHSz8fNbwzV4PLp0aM3UlJMospkdOOhlRFWQ41Y57vFoOnc5N3aHPltsWqY77CbW3GruoEBQTAwFgWYg",
-    category: "SỰ KIỆN",
-    categoryColor: "text-purple-600 bg-purple-50",
-    date: "08/03/2024",
-    readTime: "3 phút đọc"
-  }
+  { _id: "n1", title: "Sony công bố PS5 Pro", excerpt: "Hiệu năng tăng mạnh mẽ với Ray Tracing cải tiến.", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuD4gp_7FG2yU6PEHg4dMrv1sH2WP-g2uooiD8yztRruCFmB4Y4Au9KFYJog_88xjl4_fcj-BddbZv0UuFw1i-VQghoofNN6qqxmfmAF9YR2JfX9CSiD-4-CtC9NsaE_hpNvqMolB2MSXcDTvZXfoIfW7w3KDsfPJRa6FJRPlCKgg9zC6pui6tDSStd0BrRk9yGmGKCw8gBP9pJW5di_5fqEF6q7ARlm5bLwF3YWcoomV8c09XvRYw1qgh5RfudSUCWOZ3-Sq5NpMQ", category: "TIN TỨC", categoryColor: "text-blue-600 bg-blue-50", date: "12/03/2024", readTime: "5 phút" }
 ];
 
-// Base Products - Renamed to PRODUCTS_DB for export
 export const PRODUCTS_DB: Product[] = [
-  {
-    _id: "p1",
-    name: "Sony PlayStation 5 Standard Edition",
-    category: "PLAYSTATION",
-    price: 12990000,
-    originalPrice: 14500000,
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuD4gp_7FG2yU6PEHg4dMrv1sH2WP-g2uooiD8yztRruCFmB4Y4Au9KFYJog_88xjl4_fcj-BddbZv0UuFw1i-VQghoofNN6qqxmfmAF9YR2JfX9CSiD-4-CtC9NsaE_hpNvqMolB2MSXcDTvZXfoIfW7w3KDsfPJRa6FJRPlCKgg9zC6pui6tDSStd0BrRk9yGmGKCw8gBP9pJW5di_5fqEF6q7ARlm5bLwF3YWcoomV8c09XvRYw1qgh5RfudSUCWOZ3-Sq5NpMQ",
-    tags: ["HOT"],
-    rating: 4.9,
-    reviewCount: 128,
-    brand: "Sony",
-    slug: "ps5-standard",
-    stock: 50,
-    images: [
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuD4gp_7FG2yU6PEHg4dMrv1sH2WP-g2uooiD8yztRruCFmB4Y4Au9KFYJog_88xjl4_fcj-BddbZv0UuFw1i-VQghoofNN6qqxmfmAF9YR2JfX9CSiD-4-CtC9NsaE_hpNvqMolB2MSXcDTvZXfoIfW7w3KDsfPJRa6FJRPlCKgg9zC6pui6tDSStd0BrRk9yGmGKCw8gBP9pJW5di_5fqEF6q7ARlm5bLwF3YWcoomV8c09XvRYw1qgh5RfudSUCWOZ3-Sq5NpMQ",
-    ]
-  },
-  {
-    _id: "p2",
-    name: "Hộp Thẻ Bài Pokemon: Scarlet & Violet Elite Trainer Box",
-    category: "TCG",
-    price: 1250000,
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCfMMUm8DhB21rNEC9PHm47iZnqEzDeiduejhRPidBuFKt3RJieG4rEyPeNFsEyepi6A9AVeQJtrz9mvDpAhHhIog0mCxrG4oCCGy6L2_TUWM_gkgFjjm0d5Gqk9RAn-PLLaEU47-pdmV2oH2nDZDHdAE3ULm7gE14ZTUPl-Lcwo2t_o_S7kpyBT8MPUmZHSz8fNbwzV4PLp0aM3UlJMospkdOOhlRFWQ41Y57vFoOnc5N3aHPltsWqY77CbW3GruoEBQTAwFgWYg",
-    rating: 4.8,
-    reviewCount: 85,
-    brand: "Nintendo",
-    slug: "pokemon-tcg-box",
-    stock: 100
-  },
+  { _id: "p1", name: "PlayStation 5 Standard Edition", category: "PLAYSTATION", price: 12990000, originalPrice: 14500000, image: "https://lh3.googleusercontent.com/aida-public/AB6AXuD4gp_7FG2yU6PEHg4dMrv1sH2WP-g2uooiD8yztRruCFmB4Y4Au9KFYJog_88xjl4_fcj-BddbZv0UuFw1i-VQghoofNN6qqxmfmAF9YR2JfX9CSiD-4-CtC9NsaE_hpNvqMolB2MSXcDTvZXfoIfW7w3KDsfPJRa6FJRPlCKgg9zC6pui6tDSStd0BrRk9yGmGKCw8gBP9pJW5di_5fqEF6q7ARlm5bLwF3YWcoomV8c09XvRYw1qgh5RfudSUCWOZ3-Sq5NpMQ", tags: ["HOT"], rating: 4.9, reviewCount: 128, brand: "Sony", slug: "ps5-standard", stock: 50 },
   {
     _id: "p3",
-    name: "Nintendo Switch OLED Model - White Joy-Con",
+    name: "Nintendo Switch OLED Model - White",
     category: "NINTENDO",
     price: 8290000,
     originalPrice: 9500000,
@@ -379,43 +237,11 @@ export const PRODUCTS_DB: Product[] = [
     brand: "Nintendo",
     slug: "switch-oled-white",
     stock: 25,
-    colors: [
-      { name: "Trắng", hex: "#ffffff" },
-      { name: "Neon", hex: "#ef4444" },
-      { name: "Đen", hex: "#111827" }
-    ],
-    description: "Nintendo Switch OLED Model là phiên bản nâng cấp mới nhất với màn hình OLED 7 inch rực rỡ, mang lại màu sắc sống động và độ tương phản sắc nét khi chơi ở chế độ cầm tay. Chân đế rộng có thể điều chỉnh giúp bạn thoải mái chơi ở chế độ để bàn với góc nhìn tùy thích.",
+    colors: [{ name: "Trắng", hex: "#ffffff" }, { name: "Neon", hex: "#ef4444" }],
+    description: "Màn hình OLED 7 inch rực rỡ, mang lại màu sắc sống động và độ tương phản sắc nét.",
     images: [
       "https://lh3.googleusercontent.com/aida-public/AB6AXuDDO5iD3HYKw_n0GTvYboLYrg7cSK5zPRxGHUcxLm1ay5tyyvjeCfEz00Troc8yd7RwAuyxM45Dh2NfiHD2viORnoj6FPJx4Orf4jkziNqsBH5MO5FOGwtZaD6KyMQXVCqpvuBufoTjIkuLHZpPC98ce2Ub-HGSndFOIpimRtU5ZRW1PqNu_G8BGdlo1D0CfdS1vD7ymySg4SRGeMT-UgIawjrgYbiQ4sYCtLIRO7IpqFoazb4DdTXiX5BbL9jsyB9eG72G-ZQ7Jg",
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuD8bq-NAytyXeduiciBytrXQr3sl5BmiTKt9wVZbXUG_PBesazvxm0GsEr5Km5UrtOI4GmSGtrJei1vnbypxkyDUjQl0LPm8mQOtcqhFwqJhCKoxneBZaaJpMKIvBbWnmm5HOOkDyCc79Zau9E3Xeze-4UkdVx5ZpRnf_JiGboDShilpN6crMVfNswwMxd6VvfhYHAJstC6hCVQhtt3yL-oOvgPHp6FomSx3QurdVZ_AJEURe2dz_DOo_-wNgnEr22YdhJfTWSAZg",
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDNVJ9IdIyuJWKoSVW5_RrmNv9YYN8uTTrOTvT43Jm91dKtQOkXIuJ8KQXSHl-zUChahHXm3sJScYrfHbrJaDliSGpmIxtv6fn-glcf30S1qSGswb0PKuU1RvwnUv5l6_VPFq65Yybmyg-uYRczbDfYOkraUqGjtAPYrg6ggkxWlZqvgQe4bMKf6YQbNvJB_RXaNc_fKAykzNihsa5xbquLmCek3pLT_0CJ2-yEHt6kxcQ1miChWX7qvhz1KXwz1IyTVHRQP9dWzg",
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCon-zzOC70HSyuQ2Lm-_bmFmWcgeJyePIyBkBbLLdKvV3rqgSsnQJsrn2tp2pQ1h-3RMwZri9NRlZ6NOVFPQmBGp7GKfbvMPfVgv3-qL3eRKuxxhBxrnopuUstbuxw7jXx5S6yvV_lcFw2BlVi5y1MUmZQdfsoFgsTR9Y0ZO9dU85KFy0QYnyAB7pmcqOn32BxbzVsbtZn_LyzqdtUMa5isFiK9YJnJjvgTyPezf3khxO1u342ZIphgpzRVu2Nu6FaheCUGqPWqQ",
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCEiDGdOKVrahTsE75_ceRWU6A9Zb8kTioo2O6EeD-Zf1Su46RwgS6KWd3I6Gn5nB3m6Vw50I2w298jdy49KUSpYBwLr0tJ-piam8u1L5k8O-NnPuMjTdVf-oNZeDCYgf3qXfQpPjkHqrV_JOR277hOUiuLKK8KKYELedHZKDIZEpekRrIfjolyIaaefQBZHv-jVAlcvXS5aLFLJCAN2CQ_0EafOty65NFt2OsoBSXWivv4YjBf6WVPM7652PT32TdpkJ-dK6f65w"
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuD8bq-NAytyXeduiciBytrXQr3sl5BmiTKt9wVZbXUG_PBesazvxm0GsEr5Km5UrtOI4GmSGtrJei1vnbypxkyDUjQl0LPm8mQOtcqhFwqJhCKoxneBZaaJpMKIvBbWnmm5HOOkDyCc79Zau9E3Xeze-4UkdVx5ZpRnf_JiGboDShilpN6crMVfNswwMxd6VvfhYHAJstC6hCVQhtt3yL-oOvgPHp6FomSx3QurdVZ_AJEURe2dz_DOo_-wNgnEr22YdhJfTWSAZg"
     ]
-  },
-  // NEW PRODUCTS FOR CART CROSS-SELL
-  {
-    _id: "p7",
-    name: "Bọc bài thẻ game trong suốt (100 cái)",
-    category: "ACCESSORIES",
-    price: 50000,
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCekYI_b7A0BXtSYwaOUFVsjB17koaBh_sNfVhWg759L7JORum_OF-8d4D5_JpdFm2w_xrRamT4cUCO0Ew2pN2I5-yxsGo2xuFAshtnYQGchUbAusrB1tHTYj-ykJh7pjp-SBuObY3DNwcM2elMw9SfVrwzon2WkAi3aQyPRxCVVNsFoadZN2lDC8bUj-YlBPrOhNc2rF4JAHTCddeVh4KhvpYVAZ03QZu6upg4Wvlwc531zBpU6wHvEfUBgwv4YNO8bDvhWbDeew",
-    rating: 4.5,
-    reviewCount: 200,
-    brand: "OEM",
-    slug: "card-sleeves",
-    stock: 500
-  },
-  {
-    _id: "p8",
-    name: "Pin AA Energizer (Vỉ 4 viên)",
-    category: "ACCESSORIES",
-    price: 45000,
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuC-ijGF_dbJxDWuyJuVDCba4J3K0By0orLwrnuN1sjuLSyoulO8zPxxG1NTD_hQAW7Y5EeRtcBmYqS58Pe6tJ-1-m3e5afWbx-WIhKdPfODzN8t98MhURedbZ9it1Uc-wNKbA7iUNvu5B9sZZ_iENvu_Ps61EG60JvvmDoIbxYKKa-mgINPh6JQS7O7eVycpdcoSajBtzNWHOkJAWH8Wz3OjW2ruJZeqymDXP4amBaSOFxHnE8hGiWCCdslwB0p213MH7QIFOeEFQ",
-    rating: 4.8,
-    reviewCount: 150,
-    brand: "Energizer",
-    slug: "aa-batteries",
-    stock: 1000
   }
 ];

@@ -7,8 +7,8 @@ interface HeaderProps {
   onSearch: (query: string) => void;
   currentPage: string;
   cartCount?: number;
-  user?: User | null;
-  onLogout?: () => void;
+  user?: User | null; // Added
+  onLogout?: () => void; // Added
 }
 
 const Header: React.FC<HeaderProps> = ({ onNavigate, onSearch, currentPage, cartCount = 0, user, onLogout }) => {
@@ -16,10 +16,11 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onSearch, currentPage, cart
   const [searchInput, setSearchInput] = useState('');
   const [animateCart, setAnimateCart] = useState(false);
 
+  // Trigger animation when cartCount changes
   useEffect(() => {
     if (cartCount > 0) {
       setAnimateCart(true);
-      const timer = setTimeout(() => setAnimateCart(false), 500);
+      const timer = setTimeout(() => setAnimateCart(false), 500); // Increased duration for shake
       return () => clearTimeout(timer);
     }
   }, [cartCount]);
@@ -55,6 +56,8 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onSearch, currentPage, cart
         }
       `}</style>
       <div className="flex items-center justify-between px-4 py-3 md:px-8 lg:px-12 w-full max-w-[1440px] mx-auto gap-4">
+        
+        {/* Logo */}
         <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('home'); }} className="flex items-center gap-2 group">
           <div className="size-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform">
             <span className="material-symbols-outlined">sports_esports</span>
@@ -65,6 +68,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onSearch, currentPage, cart
           </div>
         </a>
 
+        {/* Search Bar (Desktop) */}
         <div className="hidden md:flex flex-1 max-w-xl mx-4 lg:mx-12">
           <div className="relative w-full group">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center cursor-pointer" onClick={handleSearchSubmit}>
@@ -81,6 +85,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onSearch, currentPage, cart
           </div>
         </div>
 
+        {/* Navigation & Actions */}
         <div className="flex items-center gap-3 sm:gap-6">
           <nav className="hidden lg:flex items-center gap-8">
             <button 
@@ -114,6 +119,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onSearch, currentPage, cart
               <span>Đặt máy</span>
             </button>
             
+            {/* Cart Button with Animation - Added ID for targeting */}
             <button 
               id="header-cart-btn"
               onClick={() => onNavigate('cart')}
@@ -127,6 +133,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onSearch, currentPage, cart
               )}
             </button>
 
+            {/* Auth Button Logic */}
             {user ? (
                <div className="relative group">
                  <button className="flex items-center gap-2 p-1.5 pl-2 rounded-lg hover:bg-gray-100 transition-colors">
@@ -137,6 +144,8 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onSearch, currentPage, cart
                     )}
                     <span className="text-sm font-semibold text-slate-700 hidden lg:block max-w-[100px] truncate">{user.name}</span>
                  </button>
+                 {/* Simple Dropdown for Logout */}
+                 {/* Modified to fix hover gap: Wrapper div with pt-2 handles spacing while maintaining hover state */}
                  <div className="absolute right-0 top-full pt-2 w-48 hidden group-hover:block animate-fade-in-up">
                     <div className="bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden">
                       <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
@@ -170,6 +179,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onSearch, currentPage, cart
         </div>
       </div>
 
+      {/* Mobile Search */}
       <div className="md:hidden px-4 pb-3">
         <div className="relative w-full">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center" onClick={handleSearchSubmit}>
@@ -186,6 +196,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onSearch, currentPage, cart
         </div>
       </div>
       
+      {/* Mobile Menu Dropdown (Simplified) */}
       {isMenuOpen && (
         <div className="lg:hidden absolute top-full left-0 w-full bg-white border-b border-gray-100 shadow-lg py-4 px-4 flex flex-col gap-4 animate-fade-in-up">
            <button onClick={() => {onNavigate('home'); setIsMenuOpen(false);}} className="text-left text-slate-700 font-medium py-2 border-b border-gray-50">Trang chủ</button>

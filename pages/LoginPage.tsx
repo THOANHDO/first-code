@@ -5,22 +5,33 @@ import { User, AuthResponse } from '../shared/types';
 interface LoginPageProps {
   onLoginSuccess: (user: User) => void;
   onNavigateHome: () => void;
-  onNavigateForgotPassword: () => void; // Added Prop
+  onNavigateForgotPassword: () => void;
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onNavigateHome, onNavigateForgotPassword }) => {
-  const [email, setEmail] = useState('user@example.com'); // Default for demo
-  const [fullName, setFullName] = useState(''); // Added state for name
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState(''); // Added confirm password
+  const [email, setEmail] = useState('user@example.com'); 
+  const [fullName, setFullName] = useState('');
+  const [password, setPassword] = useState('password123');
+  const [confirmPassword, setConfirmPassword] = useState('');
   
-  // States for toggling password visibility
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
+
+  const handleQuickLogin = (type: 'ADMIN' | 'USER') => {
+    if (type === 'ADMIN') {
+        setEmail('admin@gamestore.vn');
+        setPassword('admin123');
+    } else {
+        setEmail('user@example.com');
+        setPassword('password123');
+    }
+    setActiveTab('login');
+    setError('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,10 +42,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onNavigateHome, o
       let response: AuthResponse;
 
       if (activeTab === 'login') {
-        // Pass password to login function
         response = await AuthService.login(email, password);
       } else {
-        // Register Validation
         if (!fullName.trim()) {
             setError("Vui lòng nhập tên tài khoản.");
             setLoading(false);
@@ -55,8 +64,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onNavigateHome, o
             setLoading(false);
             return;
         }
-        
-        // Call register API
         response = await AuthService.register(email, fullName, password);
       }
       
@@ -74,7 +81,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onNavigateHome, o
 
   return (
     <div className="fixed inset-0 bg-white dark:bg-[#101922] z-50 flex flex-col font-sans">
-      {/* Minimal Header */}
       <header className="absolute top-0 left-0 w-full z-20 px-6 py-4 flex justify-between items-center lg:px-10">
         <a 
           href="#" 
@@ -97,20 +103,15 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onNavigateHome, o
         </button>
       </header>
 
-      {/* Main Layout */}
       <main className="flex w-full h-full">
-        {/* Left Side: Hero / Brand Image */}
         <div className="hidden lg:flex w-1/2 h-full relative bg-gray-900 items-center justify-center overflow-hidden group">
-          {/* Background Image */}
           <div 
             className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105" 
             style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCXL7jV33yoLPKvvhBaV5vXvsCuVicRXP85JxBjp8t_fMXCJHR2YVj3HLsVCk-2pmoNf-E4bZWy6NzNj3QC5rHr_153y79nPNVwPdDfnTV7tNjja3Looyh0xsQLLELg36ygHwFPUtKPLv7SColrrtEKuSX0E4njRNqrUfJERU6E9u3uW85nydVbxN4zYO6ivwMemUviD__5RaP3ShlOyN5qoPXIAzoV-v80WTJfKpNWPsv9OBYu16let6PC2cQYaDfhgp13cpfqIw')" }}
           >
           </div>
-          {/* Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#101922]/90 via-[#101922]/40 to-transparent"></div>
           
-          {/* Content */}
           <div className="relative z-10 max-w-lg px-12 text-white">
             <div className="mb-6 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/30 text-primary-300 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
@@ -120,61 +121,68 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onNavigateHome, o
               Nâng tầm trải nghiệm chơi game của bạn.
             </h1>
             <p className="text-lg text-gray-200 font-medium leading-relaxed mb-8">
-              Đặt lịch chơi tại cửa hàng, mua sắm thẻ game và cập nhật những thiết bị mới nhất. Tất cả chỉ trong một tài khoản duy nhất.
+              Đặt lịch chơi tại cửa hàng, mua sắm thiết bị và kết nối cùng đồng đội.
             </p>
-            <div className="flex gap-4 items-center text-sm font-medium text-gray-300">
-              <div className="flex -space-x-3">
-                <img alt="User 1" className="w-10 h-10 rounded-full border-2 border-[#101922] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxxz9qxHfI3QNFLxT9jQMV_n_0cNH-FJI1HM06Xr_eqczeS-RnFKsWbPQx0lA9rdccuU0GIL_UPQ8u1EGnoLNsUosd1Eq98EstrXgXGVN7Da86LWyGt4NwR1pmds5-6-PaOPn7pRfytD7jT4l8zUYal1q8n0Nw5IJtXFaJCdgZOmfelL74pg9tlToSCkFC5aDBvT853qI0aoh4-7b7uszc4iiCjaY7Eg8lNS1al8pgIlcs7vRIkI56gAKf6pRl__YeK5DiDw0rww"/>
-                <img alt="User 2" className="w-10 h-10 rounded-full border-2 border-[#101922] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBGYsKSWSuzssVq5oU3xcUpTyS9XkW5J91t2W1K4ftCMWxz84H1hJ6aOsZ-UFxxeNNOdwLeGlxkrxM1o-g9c5N2nkftN9AvvFUb0jV4mlNXLMXycIRvX3m7CFONXhXIM0VDXNXeXgagl0_JZVVOM445PW53Fe-QJVq8xBNxSrrv_64KzvvbAsUzPhNfPyQu8afUYduS3YdMUEtr_E4BMPXapCQxeqwGTHMOVpkM3Uejxk01r0Y0qi1eO_em3QS2FbyDodajtyefQ"/>
-                <img alt="User 3" className="w-10 h-10 rounded-full border-2 border-[#101922] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRUSXdIL6ha_VAd4y9RotYT7WHSyA0nafpIrXt9Itnn0OYS07Yfws-fvH2jnOWMsa33ay8WbH0YQWFLZLf-0sqdmd72JhL47iJew1ae01llrD4OxkomXG_4IYrcT0MskneWWrcXfYmtGsJXJJmBEfbTWuAGAe0T_bFexgCjVjXuUaGdBQYtWqI8wnDsU7GfC-xpDv1MG-k7qXtO50pMXhq0rz2_EtOFBNqAFF5jTc7Jv5FcxGDtlyxJ2Pov3tUCEi_9TVzDxmdOw"/>
-                <div className="w-10 h-10 rounded-full border-2 border-[#101922] bg-primary flex items-center justify-center text-white text-xs font-bold">+2k</div>
-              </div>
-              <span>Game thủ đã tham gia hôm nay</span>
-            </div>
           </div>
         </div>
 
-        {/* Right Side: Auth Form */}
         <div className="w-full lg:w-1/2 h-full bg-white dark:bg-[#101922] flex flex-col overflow-y-auto">
           <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-12 py-20 lg:py-10">
             <div className="w-full max-w-[440px] space-y-8">
-              {/* Title & Greeting */}
+              
               <div className="text-center space-y-2">
                 <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                   {activeTab === 'login' ? 'Chào mừng trở lại!' : 'Tạo tài khoản mới'}
                 </h1>
                 <p className="text-slate-500 dark:text-gray-400 text-sm">
-                  {activeTab === 'login' ? 'Nhập thông tin đăng nhập của bạn để tiếp tục.' : 'Điền thông tin bên dưới để tham gia cùng chúng tôi.'}
+                  {activeTab === 'login' ? 'Nhập thông tin hoặc sử dụng Đăng nhập nhanh.' : 'Điền thông tin bên dưới để tham gia.'}
                 </p>
               </div>
 
-              {/* Tabs */}
+              {/* Quick Login Shortcuts */}
+              {activeTab === 'login' && (
+                  <div className="grid grid-cols-2 gap-3 mb-2">
+                    <button 
+                        onClick={() => handleQuickLogin('ADMIN')}
+                        className="flex items-center justify-center gap-2 py-2 px-4 rounded-xl border border-primary/30 bg-primary/5 text-primary text-xs font-bold hover:bg-primary/10 transition-colors"
+                    >
+                        <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+                        Thử Admin
+                    </button>
+                    <button 
+                        onClick={() => handleQuickLogin('USER')}
+                        className="flex items-center justify-center gap-2 py-2 px-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-slate-600 dark:text-gray-300 text-xs font-bold hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    >
+                        <span className="material-symbols-outlined text-[18px]">person</span>
+                        Thử User
+                    </button>
+                  </div>
+              )}
+
               <div className="w-full border-b border-gray-200 dark:border-gray-700">
                 <div className="flex w-full gap-8">
                   <button 
                     onClick={() => setActiveTab('login')}
-                    className={`flex-1 pb-4 text-center text-sm font-bold border-b-2 transition-colors ${activeTab === 'login' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-gray-500 dark:hover:text-gray-300'}`}
+                    className={`flex-1 pb-4 text-center text-sm font-bold border-b-2 transition-colors ${activeTab === 'login' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-gray-500'}`}
                   >
                     Đăng nhập
                   </button>
                   <button 
                     onClick={() => setActiveTab('register')}
-                    className={`flex-1 pb-4 text-center text-sm font-bold border-b-2 transition-colors ${activeTab === 'register' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-gray-500 dark:hover:text-gray-300'}`}
+                    className={`flex-1 pb-4 text-center text-sm font-bold border-b-2 transition-colors ${activeTab === 'register' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-gray-500'}`}
                   >
                     Đăng ký
                   </button>
                 </div>
               </div>
 
-              {/* Error Message */}
               {error && (
-                <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg flex items-center gap-2">
+                <div className="p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm rounded-lg flex items-center gap-2 border border-red-100 dark:border-red-900/30">
                    <span className="material-symbols-outlined text-[18px]">error</span>
                    {error}
                 </div>
               )}
 
-              {/* Form Inputs */}
               <form className="space-y-4" onSubmit={handleSubmit}>
                 {activeTab === 'register' && (
                   <div className="space-y-1.5">
@@ -187,14 +195,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onNavigateHome, o
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                         className="w-full h-11 pl-10 pr-4 rounded-lg bg-gray-50 dark:bg-[#1a2632] border border-gray-200 dark:border-gray-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-medium outline-none" 
-                        placeholder="Nhập tên tài khoản mong muốn" 
+                        placeholder="Nhập tên tài khoản" 
                         type="text" 
                       />
                     </div>
                   </div>
                 )}
 
-                {/* Email Input */}
                 <div className="space-y-1.5">
                   <label className="block text-sm font-medium text-slate-900 dark:text-gray-200">Email hoặc số điện thoại</label>
                   <div className="relative">
@@ -205,13 +212,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onNavigateHome, o
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="w-full h-11 pl-10 pr-4 rounded-lg bg-gray-50 dark:bg-[#1a2632] border border-gray-200 dark:border-gray-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-medium outline-none" 
-                      placeholder="nguyenvan@example.com" 
+                      placeholder="admin@gamestore.vn" 
                       type="text" 
                     />
                   </div>
                 </div>
 
-                {/* Password Input */}
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-center">
                     <label className="block text-sm font-medium text-slate-900 dark:text-gray-200">Mật khẩu</label>
@@ -233,7 +239,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onNavigateHome, o
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full h-11 pl-10 pr-12 rounded-lg bg-gray-50 dark:bg-[#1a2632] border border-gray-200 dark:border-gray-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-medium outline-none" 
-                      placeholder={activeTab === 'login' ? "Nhập mật khẩu" : "Tạo mật khẩu"}
+                      placeholder="Nhập mật khẩu"
                       type={showPassword ? "text" : "password"} 
                     />
                     <button 
@@ -248,7 +254,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onNavigateHome, o
                   </div>
                 </div>
 
-                {/* Confirm Password (Register Only) */}
                 {activeTab === 'register' && (
                   <div className="space-y-1.5">
                     <label className="block text-sm font-medium text-slate-900 dark:text-gray-200">Xác nhận mật khẩu</label>
@@ -276,7 +281,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onNavigateHome, o
                   </div>
                 )}
 
-                {/* Primary Button */}
                 <button 
                   disabled={loading}
                   className="w-full h-12 mt-2 flex items-center justify-center rounded-lg bg-primary hover:bg-primary/90 text-white text-sm font-bold tracking-wide transition-all shadow-md hover:shadow-lg shadow-primary/20 disabled:opacity-70 disabled:cursor-not-allowed"
@@ -289,16 +293,14 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onNavigateHome, o
                 </button>
               </form>
 
-              {/* Divider */}
               <div className="relative flex py-2 items-center">
                 <div className="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
                 <span className="flex-shrink-0 mx-4 text-xs font-medium text-slate-500 uppercase">
-                    {activeTab === 'login' ? 'Hoặc tiếp tục với' : 'Hoặc đăng ký nhanh với'}
+                    Hoặc đăng nhập với
                 </span>
                 <div className="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
               </div>
 
-              {/* Social Login */}
               <div className="grid grid-cols-2 gap-4">
                 <button className="flex items-center justify-center gap-3 h-12 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1a2632] hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                   <svg className="size-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -317,17 +319,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onNavigateHome, o
                 </button>
               </div>
 
-              {/* Footer Links */}
               <div className="text-center pt-2 pb-4">
                 <p className="text-xs text-slate-500 leading-relaxed max-w-xs mx-auto">
-                   Bằng cách {activeTab === 'login' ? 'đăng nhập' : 'đăng ký'}, bạn đồng ý với <a className="text-slate-900 dark:text-gray-300 font-bold hover:underline" href="#">Điều khoản dịch vụ</a> và <a className="text-slate-900 dark:text-gray-300 font-bold hover:underline" href="#">Chính sách bảo mật</a> của GameStore VN.
+                   Bằng cách {activeTab === 'login' ? 'đăng nhập' : 'đăng ký'}, bạn đồng ý với các Điều khoản & Chính sách của chúng tôi.
                 </p>
               </div>
-            </div>
-
-            {/* Mobile SEO text */}
-            <div className="mt-4 lg:hidden text-center max-w-sm px-4 pb-10">
-              <p className="text-xs text-slate-500">Trải nghiệm mua sắm thẻ game, máy chơi game và đặt lịch chơi tại cửa hàng nhanh chóng.</p>
             </div>
           </div>
         </div>

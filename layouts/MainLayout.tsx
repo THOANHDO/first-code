@@ -9,8 +9,8 @@ interface MainLayoutProps {
   onSearch: (query: string) => void;
   currentPage: string;
   cartCount?: number;
-  user?: User | null; // Added
-  onLogout?: () => void; // Added
+  user?: User | null;
+  onLogout?: () => void;
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children, onNavigate, onSearch, currentPage, cartCount = 0, user, onLogout }) => {
